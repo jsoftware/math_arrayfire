@@ -67,6 +67,10 @@ case. 'Linux' do.
  end. 
  t=. 'libafxxx.so ' rplc 'xxx';y
  afincpath=: '/opt/arrayfire/include' NB. path to af includes
+ 
+case. 'Win'   do.
+ t=. 'afxxx.dll ' rplc 'xxx';y
+ afincpath=: jpath (getenv'AF_PATH'),'/include' NB. path to af includes
 case.         do. 'need to set lib'assert 0
 end.
 try. (t,'af_get_seed x *')cd <iresult catch. 'arrayfire lib load failed'assert 0 end.
