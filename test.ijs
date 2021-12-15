@@ -73,6 +73,12 @@ NB. reduceall
 assert (0,~+/+/jaf)-:af_sum_all_jaf_ af
 assert (0,~*/*/jaf)-:af_product_all_jaf_ af
 
+NB. spiralled data
+a=. i.2 3
+afa=. af_create_array_jaf_ a
+a
+display_jaf_ afa
+
 NB. release all at end
 release_jaf_ AFS_jaf_ NB. release all af_arrays
 assert 0=#AFS_jaf_

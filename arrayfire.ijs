@@ -12,9 +12,12 @@ if unfamiliar with arrayfire, browse: https://arrayfire.org
 
    JAFP_z_ NB. path to scripts - usually ~addons/math/arrayfire
 
-util.ijs tools created proto.txt and famcnts.txt files from c headers
- proto.txt - summary of all c protypes
- famcnts.txt - count and 1st member of each family with the same prototype
+   fread JAFP,'install/install.txt' NB. arrayfire install hints
+   
+util/util.ijs tools that create files from c headers
+ families.ijs     - J cd  bindings for families of routines
+ util/proto.txt   - all arrayfire c protypes
+ util/famcnts.txt - count and 1st member of each family with same prototype
 
 row vs col major order
  J  array is row major - AF array is column major

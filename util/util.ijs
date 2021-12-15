@@ -1,12 +1,13 @@
 coclass'jaf'
 
-NB. get header file names and contents
+NB. get c header file names and contents
 getincs=: 3 : 0
 incfiles=: {."1 dirtree afincpath
 inclines=: fread each incfiles
 i.0 0
 )
 
+NB. create proto.txt famcnts.txt from c include files
 getproto=: 3 : 0
 if. _1=nc<'incfiles' do. getincs'' end.
 start=. 'AFAPI af_err af_'
@@ -31,7 +32,7 @@ assert (#r)=+/;(<');')-:each _2{.each r
 r=. _1}.each r NB. losetrailing ;
 r=. r rplc each <' (';'(' NB. lose blank before (
 r=. /:~r
-(;r,each LF)fwrite JAFP,'proto.txt'
+(;r,each LF)fwrite JAFP,'util/proto.txt'
 i=. r i.each'('
 n=. i{.each r
 p=. i}.each r
@@ -42,7 +43,7 @@ j=. b i."1[ 1
 q=. (i{j){n
 t=. (i{c) i. 1
 d=. ;(t{.3":each i{c),each ' ',each (t{.q),each LF
-d fwrite JAFP,'famcnts.txt'
+d fwrite JAFP,'util/famcnts.txt'
 i.0 0
 )
 
@@ -53,7 +54,7 @@ fops=:     ;:'mop    dop    is         reduce   reduce_all'
 NB. create families.ijs file from proto.txt and families/fops
 genfamilies=: 3 : 0
 defs=. 'coclass ''jaf''',LF
-r=. <;._2 fread JAFP,'proto.txt'
+r=. <;._2 fread JAFP,'util/proto.txt'
 i=. r i.each '('
 n=. i{.each r
 p=. i}.each r
