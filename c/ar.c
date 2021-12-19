@@ -2,12 +2,26 @@
 // Generate random data and sum and print the result
 int main(void)
 {
+ af_array w,r,a;
+ int       wndims = 2;
+ dim_t     wdims[] = {2,3};
+ long long wdata[]= {0,1,2,3,4,5};
+ af_create_array(&w,wdata,wndims,wdims,s64);
+ af_print_array(w);
+ 
+ af_sum(&r,w,0);
+ af_print_array(r);
+ af_sum(&r,w,1);
+ af_print_array(r);
+ 
+ 
+ 
+
+
     // generate random values
-    af_array a;
-    int n_dims = 1;
-    dim_t dims[] = {5};
-    af_randu(&a, n_dims, dims, f64);
+    af_randu(&a, wndims, wdims, f64);
     af_print_array(a);
+
     // sum all the values
     double result;
     af_sum_all(&result, 0, a);

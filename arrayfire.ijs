@@ -6,13 +6,14 @@ man=: 0 : 0
 J-ArrayFire cd bindings
 
 if unfamiliar with arrayfire, browse: https://arrayfire.org
+arrayfire install hints: fread JAFP,'install/install.txt'
 
    init_jaf_'cpu' NB. 'cuda' or 'opencl'
-   runtest_jaf_'' NB. loadd test script - study for use examples
+   tests_jaf_''   NB. list scripts to loadd for tests/examples
 
-   JAFP_z_ NB. path to scripts - usually ~addons/math/arrayfire
+   JAFP_z_        NB. path to scripts - usually ~addons/math/arrayfire
 
-   fread JAFP,'install/install.txt' NB. arrayfire install hints
+   tests_jaf_     NB. list of scripts to loadd for tests/examples
    
 util/util.ijs tools that create files from c headers
  families.ijs     - J cd  bindings for families of routines
@@ -29,12 +30,25 @@ row vs col major order
 Pascal Jasmin was the J-ArrayFire pioneer in 2015 with
  https://github.com/Pascal-J/Jfire
  
-Alex Shroyer, in late 2021, did some new work and wrote a paper
- that comparied af_matmul with J mp
+Alex Shroyer, in late 2021, did some new work and wrote a paper:
+ https://alexshroyer.com/papers/matmul_j_gpu.pdf
 
 this addon started with a clean slate - it might be interesting 
  to see if it could be improved/replaced by the work of Pascal or Alex
 )
+
+0 : 0
+J is row major and AF is col major order
+ browse: https://arrayfire.org/docs/classaf_1_1array.htm
+ and searchfor: {0, 1, 2, 3, 4, 5}
+ to see how host data (raveled row major order) populates an af array
+)
+
+rcc=: 3 : 0
+($y)$,|:y
+)
+
+
 
 3 : 0''
 NB. ensure different (production vs development) packages are not both loaded
@@ -42,7 +56,15 @@ n=. '/arrayfire.ijs'
 d=. jpath each 4!:3''
 f=. (;(<n)-:each (-#n){.each d)#d
 'can not mix different arrayfire packages' assert 1=#f
-JAFP_z_=: (-<:#n)}.;f
+f=. (-<:#n)}.;f
+c=. #t=. jpath'~addons'
+if. t-:c{.f do.
+ t=. '~',}.c}.f 
+else.
+ c=. #t=. jpath'~'
+ if. t-:c{.f do. t=. }.c}.f end.
+end.
+JAFP_z_=: t
 if. _1=nc<'lib' do.
  AFS=: '' NB. valid af_array values
  lib=: 'invalidlib'
@@ -82,8 +104,10 @@ backend=: y
 i.0 0
 )
 
-runtest=: 3 : 0
-loadd JAFP,'test.ijs'
+tests=: 3 : 0
+d=. 1 dir JAFP,'test'
+d=. '''',each'''',~each d
+;(<'   loadd'),each d,each LF
 )
 
 NB. af constants from array.h etc
@@ -102,8 +126,6 @@ AF_MAT_ORTHOG     =: 2048
 AF_MAT_TRI_DIAG   =: 4096 
 AF_MAT_BLOCK_DIAG =: 8192  
 
-
-DISPLAYLIMIT=: 2000 NB. set to _1 for all
 
 iresult=: ,_1  NB. 4 byte integer
 lresult=: ,_1  NB. 8 byte integer
@@ -124,18 +146,6 @@ NB. supported aftypes and corresponding J types
 aftypes=: s64,f64 
 jtypes =: 4   8
 
-aftype_from_jtype=: 3 : 0
-i=. jtypes i. 3!:0 y
-'unsupported J type' assert i<#jtypes
-i{::aftypes
-)
-
-jtype_from_aftype=: 3 : 0
-i=. aftypes i. af_get_type y
-'unsupported J type' assert i<#aftypes
-i{::jtypes
-)
-
 NB. validate cd args - needs work - validation avoids crashes!
 vaf  =:  3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'         NB. validate af_array
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'  NB. validate rank
@@ -151,7 +161,7 @@ NB.  aresult, iresult, lresult, or qresult as required
 NB. out values are returned
 
 af_create_array=: 3 : 0
-afsadd 1{::'af_create_array x * * x * x' afx aresult;y;(vrank #$y);(vshape $y);aftype_from_jtype y
+afsadd 1{::'af_create_array x * * x * x' afx aresult;(rcc y);(vrank #$y);(vshape $y);aftype_from_jtype y
 )
 
 NB. constant is a double - coerced to type
@@ -180,20 +190,22 @@ af_randn=: 3 : 0
 afsadd 1{::'af_randn x * x * x'afx aresult;(vrank #s);(vshape s);vtype type
 )
 
-NB. our af_array ref counting is dumb and assumes count of 1
-release=: 3 : 0"0
-'af_release_array x x'afx vaf y
-AFS=: AFS-.y
-i.0 0
+NB. create an array that is a sequence start,end,step
+seq=: 3 : 0
+'start end step'=. y
+if. start<end do. assert 0<step end.
+if. start>end do. assert 0>step end.
+afsadd af_create_array start+step*i.1+<.(|end-start)%|step
 )
 
-NB. get af_array as j_array
+
+NB. row/col major order kludge - note reverses rcc
 get=: 3 : 0
 type=.  af_get_type y
 ndims=. af_get_numdims y
-dims=.  ndims{.af_get_dims y
+dims=.  |.ndims{.af_get_dims y
 data=.  (*/dims)$;(aftypes i. type){00;0.0
-dims$af_get_data_ptr data;y
+|:dims$af_get_data_ptr data;y
 )
 
 NB. get first element of af aray
@@ -202,13 +214,13 @@ data=.  ,;(aftypes i. af_get_type y){00;0.0
 ''$1{::'af_get_scalar x * x'afx data;y
 )
 
-NB. af_array;precision;transpose
+DISPLAYLIMIT=:     2000 NB. _1 for all
+DISPLAYPRECISION=: 6
+
 display=: 3 : 0
-if. 0=L.y do. y=. y;6;0 end.
-vaf 0{::y
-a=. af_array_to_string y
+a=. af_array_to_string (vaf y);DISPLAYPRECISION;1 NB. transpose
 r=. memr a,0,_1
-af_free_device_v2 a NB. free the memory!
+af_free_host a NB. free the host memory
 DISPLAYLIMIT{.r
 )
 
@@ -216,7 +228,9 @@ af_info_string=: 3 : 0
 memr (1{::'af_info_string x * x'afx qresult;y),0,_1
 )
 
+NB. AF_MAT_NONE for elided args
 af_matmul=: 3 : 0
+if. 2=#y do. y=. y,0;0 end.
 vaf each 2{.y
 afsadd 1{::'af_matmul x * x x x x'afx aresult;y
 )
@@ -229,8 +243,9 @@ mop=: 4 : 0
 afsadd 1{::(x,' x * x') afx aresult;vaf y
 )
 
-NB. dyadics familty - af_add ... - af1;af2;batch_boolean
+NB. dyadics familty - af_add ... - af1;af2 [;batch_boolean]
 dop=: 4 : 0
+if. 2=#y do. y=. y,<0 end. 
 vaf each 2{.y
 afsadd 1{::(x,' x * x x x')afx aresult;y
 )
@@ -270,12 +285,17 @@ vaf 1{::y
 
 NB. af_print_array (af_array arr)
 af_print_array=: 3 : 0
-(lib,' af_print_array x x')cd y
+i.0 0['af_print_array x x'afx vaf y
 )
 
 NB. af_array_to_string (char **output, const char *exp, const af_array arr, const int precision, const bool transpose)
 af_array_to_string=: 3 : 0
-1{::'af_array_to_string x * *c x x x'afx arg__=: qresult;'no name';y
+vaf 0{::y
+1{::'af_array_to_string x * *c x x x'afx qresult;'no name';y
+)
+
+af_free_host=: 3 : 0
+'af_free_host x x'afx y
 )
 
 af_free_device_v2=: 3 : 0
@@ -295,6 +315,66 @@ af_get_seed=: 3 : 0
 'af_get_seed x *'afx <iresult
 ) 
 
+NB. memory management
+
+NB. our af_array ref counting is dumb and assumes count of 1
+release=: 3 : 0"0
+'af_release_array x x'afx vaf y
+AFS=: AFS-.y
+i.0 0
+)
+
+freeall=: 3 : 0
+release AFS
+af_device_gc''
+assert 0=af_device_mem_info''
+i.0 0
+)
+
+af_eval=: 3 : 0
+i.0 0['af_eval x x'afx vaf y
+)
+
+af_sync=: 3 : 0
+i.0 0['af_sync x x'afx y NB. x is device - user _1
+)
+
+af_device_gc=: 3 : 0
+i.0 0['af_device_gc x'afx''
+)
+
+NB. bytes,buffers,lock_bytes,lock_buffers
+af_device_mem_info=: 3 : 0
+}.;'af_device_mem_info x * * * *'afx iresult;iresult;iresult;iresult
+)
+
+af_tile=: 3 : 0
+vaf 0{::y
+afsadd 1{::'af_tile x * x x x x x'afx aresult;y
+)
+
+af_transpose=: 3 : 0
+vaf 0{::y
+afsadd 1{::'af_transpose x * x x'afx aresult;y
+)
+
+af_flat=: 3 : 0
+vaf 0{::y
+afsadd 1{::'af_flat x * x'afx aresult;y
+)
+
+NB. dim;af1;af2
+af_join=: 3 : 0
+afsadd 1{::'af_join x * x x x'afx aresult;y
+)
+
+NB. sparse
+
+af_create_sparse_array_from_dense=: 3 : 0
+vaf 0{::y
+afsadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
+)  
+
 NB. stuff that may become obsolete
 preload=: 0 : 0
 export LD_PRELOAD... required before starting J
@@ -312,4 +392,8 @@ j903/bin/jconsole ~addons/ide/jhs/config/jhs.cfg
 ***
 
 )
+
+NB. from test suite tsu.ijs - return expected error - used in Jd
+etx_z_=: 1 : 'u :: (<:@(13!:11)@i.@0: >@{ 9!:8@i.@0:)'
+
  

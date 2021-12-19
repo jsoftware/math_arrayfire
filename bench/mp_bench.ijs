@@ -1,18 +1,23 @@
-NB. benchmark j vs af performance
+NB. benchmark j vs af matmul performance
 
-mp_bench=: 3 : 0
-ja=: 10000 10000$0.3+?17$5000
-jb=: 10000 10000$0.7+?17$5000
-jtime=: timex'q=: ja mp_jaf_ jb' 
+mp=: +/ . *
 
-afa=: af_create_array_jaf_ ja NB. create arrayfire array
-afb=: af_create_array_jaf_ jb
-NB. afa/afb - int scalar handles to data in af device space
+NB. arg is matrix row length
+mptime=: 3 : 0
+release_jaf_ AFS_jaf_ NB. release af arrays
+af_device_gc_jaf_''   NB. af defice garbage collection
 
-NB. note args and result are transposed
-aftime=: timex'qaf=: |:get_jaf_ af_matmul_jaf_ afa;afb;AF_MAT_TRANS_jaf_;AF_MAT_TRANS_jaf_'
-
-assert q-:qaf
-
-jtime,aftime
+ja=: (y,y)$0.3+?17$5000
+jb=: (y,y)$0.7+?17$5000
+r=.   timex'jr=: ja mp jb'
+r=. r,timex'afa=: af_create_array_jaf_ ja'
+r=. r,timex'afb=: af_create_array_jaf_ jb'
+r=. r,timex'afp=:af_matmul_jaf_ afa;afb;AF_MAT_TRANS_jaf_;AF_MAT_TRANS_jaf_'
+r=. r,timex'af_sync_jaf_ _1'
+r=. r,timex'afr=: get_jaf_ afp'
+assert jr-:|:afr
+h=.    <;._2'mp acreate bcreate matmul sync get aftot mp%aftot '
+aftot=. +/}.r
+h,.<"0 (<.1000*r,aftot),({.r)%aftot
 )
+
