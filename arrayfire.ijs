@@ -146,6 +146,18 @@ NB. supported aftypes and corresponding J types
 aftypes=: s64,f64 
 jtypes =: 4   8
 
+aftype_from_jtype=: 3 : 0
+i=. jtypes i. 3!:0 y
+'unsupported J type' assert i<#jtypes
+i{::aftypes
+)
+
+jtype_from_aftype=: 3 : 0
+i=. aftypes i. af_get_type y
+'unsupported AF type' assert i<#aftypes
+i{::jtypes
+)
+
 NB. validate cd args - needs work - validation avoids crashes!
 vaf  =:  3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'         NB. validate af_array
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'  NB. validate rank
