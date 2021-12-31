@@ -9,23 +9,18 @@ if unfamiliar with arrayfire, browse: https://arrayfire.org
 arrayfire install hints: fread JAFP,'install/install.txt'
 
    init_jaf_'cpu' NB. 'cuda' or 'opencl'
-   tests_jaf_''   NB. list scripts to loadd for tests/examples
 
    JAFP_z_        NB. path to scripts - usually ~addons/math/arrayfire
 
-   tests_jaf_     NB. list of scripts to loadd for tests/examples
+   man_test_jaf_  NB. tests and examples
+   
+   man_col_jaf_   NB. col vs row major order
    
 util/util.ijs tools that create files from c headers
  families.ijs     - J cd  bindings for families of routines
  util/proto.txt   - all arrayfire c protypes
  util/famcnts.txt - count and 1st member of each family with same prototype
 
-row vs col major order
- J  array is row major - AF array is column major
- af_create_array creates an array with 'spiralled' data
- get reads the array back OK
- this needs to be better understood and handled
-   
 *** credits
 Pascal Jasmin was the J-ArrayFire pioneer in 2015 with
  https://github.com/Pascal-J/Jfire
@@ -37,18 +32,32 @@ this addon started with a clean slate - it might be interesting
  to see if it could be improved/replaced by the work of Pascal or Alex
 )
 
-0 : 0
-J is row major and AF is col major order
- browse: https://arrayfire.org/docs/classaf_1_1array.htm
+man_test=: 0 : 0
+   test_jaf_''            NB. test names
+   test_jaf_'basic'       NB. script for test basic
+   loadd test_jaf_'basic' NB. loadd basic test
+   
+   spx test_jaf_'create'          NB. run create test with spx (JHS)
+   lab_jlab_ test_jaf_ 'create'   NB. run create test with jlab (Jqt)
+   
+   load"1 test_jaf_"1 test_jaf_'' NB. load all tests
+
+   load JAFP,'bench/mp_bench.ijs'
+   mptime 4000 NB. takes several seconds to run
+)
+
+man_col=: 0 : 0
+J array is row major - AF array is column major
+ af_create_array creates an AF array with verb rcc
+ get reads the array back with an rcc inverse
+
+browse: https://arrayfire.org/docs/classaf_1_1array.htm
  and searchfor: {0, 1, 2, 3, 4, 5}
- to see how host data (raveled row major order) populates an af array
+ to see how host data (raveled row major order) populates an AF array
+ and to understand why rcc is necessary
 )
 
-rcc=: 3 : 0
-($y)$,|:y
-)
-
-
+rcc=: 3 : '($y)$,|:y' NB. convert J data between row and col major
 
 3 : 0''
 NB. ensure different (production vs development) packages are not both loaded
@@ -104,10 +113,16 @@ backend=: y
 i.0 0
 )
 
-tests=: 3 : 0
-d=. 1 dir JAFP,'test'
-d=. '''',each'''',~each d
-;(<'   loadd'),each d,each LF
+test=: 3 : 0
+require'labs/labs'
+if. ''-:y do.
+ d=. 1 dir JAFP,'test'
+ >_4}.each(>:;d i: each '/')}.each d
+ return.
+end. 
+f=. JAFP,'test/',(dltb y),'.ijs'
+'test does not exist'assert fexist f
+f
 )
 
 NB. af constants from array.h etc
@@ -202,14 +217,13 @@ af_randn=: 3 : 0
 afsadd 1{::'af_randn x * x * x'afx aresult;(vrank #s);(vshape s);vtype type
 )
 
-NB. create an array that is a sequence start,end,step
+NB. create sequence - start,end,step
 seq=: 3 : 0
 'start end step'=. y
 if. start<end do. assert 0<step end.
 if. start>end do. assert 0>step end.
-afsadd af_create_array start+step*i.1+<.(|end-start)%|step
+start+step*i.1+<.(|end-start)%|step
 )
-
 
 NB. row/col major order kludge - note reverses rcc
 get=: 3 : 0
@@ -269,7 +283,7 @@ _255=1{::(x,' x * x')afx lresult;y
 
 NB. af_sum family
 reduce=: 4 : 0
-afsadd 1{::(x,' x * x x')afx arg__=: aresult; (vaf>{.y);}.y
+afsadd 1{::(x,' x * x x')afx aresult; (vaf>{.y);}.y
 )
 
 NB. af_sum_all family
@@ -331,9 +345,9 @@ NB. memory management
 
 NB. our af_array ref counting is dumb and assumes count of 1
 release=: 3 : 0"0
-'af_release_array x x'afx vaf y
+r=. 'af_release_array x x'afx vaf y
 AFS=: AFS-.y
-i.0 0
+r
 )
 
 freeall=: 3 : 0
@@ -380,12 +394,42 @@ af_join=: 3 : 0
 afsadd 1{::'af_join x * x x x'afx aresult;y
 )
 
+af_index=: 3 : 0
+'in dim seqs'=. y
+vaf in
+vdim dim=. 00+dim
+seqs=. 0.0+,seqs
+assert (3*dim)=#seqs
+afsadd 1{::'af_index x * x x *'afx aresult;in;dim;seqs
+)
+
+af_inverse=: 3 : 0
+vaf y
+afsadd 1{::'af_inverse x * x x'afx aresult;y;0
+)
+
 NB. sparse
 
 af_create_sparse_array_from_dense=: 3 : 0
 vaf 0{::y
 afsadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
-)  
+)
+
+af_sparse_get_info=: 3 : 0
+;1 2 3{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;vaf y
+)
+
+sparse_release=: 3 : 0
+a=. af_sparse_get_info vaf y
+release_jaf_ y
+'af_release_array x x'afx 0{a
+'af_release_array x x'afx 1{a
+'af_release_array x x'afx 2{a
+)
+
+af_get_data_ref_count=: 3 : 0
+''$1{::'af_get_data_ref_count x *i x'afx iresult;vaf y
+)
 
 NB. stuff that may become obsolete
 preload=: 0 : 0

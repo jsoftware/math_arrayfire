@@ -42,7 +42,14 @@ int main(void)
     //af_matmul(&res,left,right,(af_mat_prop)0,(af_mat_prop)0);
     //af_matmul(&res,left,right,0,0); // fails because enums are not ints! ugh
     af_print_array(res);
-
+    
+    
+    //AFAPI af_seq af_make_seq(10,20,2);
+    af_seq sq= af_make_seq(10,20,2);
+    printf("sq.begin: %g\n", sq.begin);
+    printf("sq.end:   %g\n", sq.end);
+    printf("sq.step:  %g\n", sq.step);
+    
 
 //    dim_t cdims[] = {1,1};
 //    af_constant(&a,123,2,cdims,s64);

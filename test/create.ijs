@@ -2,14 +2,14 @@ NB. create AF array tests and examples
 
 freeall_jaf_'' NB. release all AF arrays and do device garbage collection
 
-afai=: af_create_array_jaf_ i.3 4
+afai=. af_create_array_jaf_ i.3 4
 get_jaf_          afai
 af_get_type_jaf_     afai
 aftypes_jaf_,.jtypes_jaf_ NB. aftype and corresponding jtype
 af_get_numdims_jaf_ afai
 af_get_dims_jaf_     afai
 
-afad=: af_create_array_jaf_ 2.3+i.3 4
+afad=. af_create_array_jaf_ 2.3+i.3 4
 get_jaf_          afad
 
 afcd=. af_constant_jaf_ 1234.56;2 3;f64_jaf_
@@ -32,15 +32,15 @@ cid=. af_identity_jaf_ 3 3;f64_jaf_
 get_jaf_ cid
 assert 8=3!:0 get_jaf_ cid NB. identity matrix is double
 
-aru=: af_randu_jaf_ 2 3;s64_jaf_ NB. uniform random ints
+aru=. af_randu_jaf_ 2 3;s64_jaf_ NB. uniform random ints
 get_jaf_ aru
 
-aru=: af_randu_jaf_ 2 3;f64_jaf_ NB. uniform random doubles
+aru=. af_randu_jaf_ 2 3;f64_jaf_ NB. uniform random doubles
 get_jaf_ aru
 
 'assertion failure'-:af_randn_jaf_ etx 2 3;s64_jaf_ NB.normal random ints
 
-arn=: af_randn_jaf_ 2 3;f64_jaf_ NB.normal random doubles
+arn=. af_randn_jaf_ 2 3;f64_jaf_ NB.normal random doubles
 get_jaf_ arn
 
 freeall_jaf_'' NB. release all AF arrays and do device garbage collection
