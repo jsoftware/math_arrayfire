@@ -12,7 +12,7 @@ arrayfire install hints: fread JAFP,'install/install.txt'
 
    JAFP_z_        NB. path to scripts - usually ~addons/math/arrayfire
 
-   man_test_jaf_  NB. tests and examples
+   man_test_jaf_  NB. tests, examples, and benchmarks
    
    man_col_jaf_   NB. col vs row major order
    

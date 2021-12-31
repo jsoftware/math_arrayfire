@@ -14,6 +14,12 @@ r=. r,timex'afb=: af_create_array_jaf_ jb'
 r=. r,timex'afp=:af_matmul_jaf_ afa;afb;0;0'
 r=. r,timex'af_sync_jaf_ _1'
 r=. r,timex'afr=: get_jaf_ afp'
+
+if. jr-afr do.
+ echo 'J and AF results match exactly'
+else.
+ echo 'J and AF results have max abs difference of: ',>./,|jr-afr
+end.
 assert jr-:afr
 h=.    <;._2'mp acreate bcreate matmul sync get aftot mp%aftot '
 aftot=. +/}.r
