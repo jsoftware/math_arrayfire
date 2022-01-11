@@ -68,7 +68,7 @@ f=. (;(<n)-:each (-#n){.each d)#d
 f=. (-<:#n)}.;f
 c=. #t=. jpath'~addons'
 if. t-:c{.f do.
- t=. '~',}.c}.f 
+ t=. '~addons/',}.c}.f 
 else.
  c=. #t=. jpath'~'
  if. t-:c{.f do. t=. }.c}.f end.
