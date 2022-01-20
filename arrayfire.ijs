@@ -8,14 +8,19 @@ J-ArrayFire cd bindings
 if unfamiliar with arrayfire, browse: https://arrayfire.org
 arrayfire install hints: fread JAFP,'install/install.txt'
 
-   init_jaf_'cpu' NB. 'cuda' or 'opencl'
+arrayfire backend must be initialized before it can be used
+ cpu    - always available and uses cpu memory and cores
+ cuda   - available if you have suitable hardware and cuda software installed
+ opencl - available if you have suitable hardware and opencl software installed
+
+   init_jaf_'cpu' NB. 'cpu' or 'cuda' or 'opencl'
+
+   man_test_jaf_  NB. labs, tests, examples, and benchmarks
+   man_col_jaf_   NB. col vs row major order
+   man_bugs_jaf_  NB. known bugs or problems
 
    JAFP_z_        NB. path to scripts - usually ~addons/math/arrayfire
 
-   man_test_jaf_  NB. tests, examples, and benchmarks
-   
-   man_col_jaf_   NB. col vs row major order
-   
 util/util.ijs tools that create files from c headers
  families.ijs     - J cd  bindings for families of routines
  util/proto.txt   - all arrayfire c protypes
@@ -33,17 +38,19 @@ this addon started with a clean slate - it might be interesting
 )
 
 man_test=: 0 : 0
-   test_jaf_''            NB. test names
-   test_jaf_'basic'       NB. script for test basic
-   loadd test_jaf_'basic' NB. loadd basic test
-   
-   spx test_jaf_'create'          NB. run create test with spx (JHS)
-   lab_jlab_ test_jaf_ 'create'   NB. run create test with jlab (Jqt)
-   
+   test_jaf_''            NB. names
+   test_jaf_'basic'       NB. script for basic
+   loadd test_jaf_'basic' NB. loadd basic
    load"1 test_jaf_"1 test_jaf_'' NB. load all tests
-
    load JAFP,'bench/mp_bench.ijs'
-   mptime 4000 NB. takes several seconds to run
+   mptime 4000            NB. takes several seconds to run
+   
+JHS   
+   spx test_jaf_'create'  NB. JHS - run basic with spx
+
+Jqt
+   load'labs/labs'
+   lab test_jaf_ 'create' NB. run create test with lab
 )
 
 man_col=: 0 : 0
@@ -55,6 +62,13 @@ browse: https://arrayfire.org/docs/classaf_1_1array.htm
  and searchfor: {0, 1, 2, 3, 4, 5}
  to see how host data (raveled row major order) populates an AF array
  and to understand why rcc is necessary
+)
+
+man_bugs_=: 0 : 0
+*** sparse
+ display/af_print_array sparse array messes up ref counts
+ workaround is to ignore those requests with:
+   NO_SPARSE_DISPLAY=: 1
 )
 
 rcc=: 3 : '($y)$,|:y' NB. convert J data between row and col major
@@ -88,8 +102,8 @@ NB. af_set_backend is implicit in the lib that is used
 init=: 3 : 0
 'invalid backend'assert (<y) e. ;:'cpu cuda opencl'
 if. backend-:y do. i.0 0 return. end.
-select. UNAME
-case. 'Linux' do.
+
+if. (UNAME-:'Linux')*.y-:'cpu' do.
  NB. check if required LD_PRELOAD has been done
  try.
   'libmkl_def.so foo x'cd''
@@ -99,6 +113,10 @@ case. 'Linux' do.
    'required LD_PRELOAD missing'assert 0
   end.
  end. 
+end.
+
+select. UNAME
+case. 'Linux' do.
  t=. 'libafxxx.so ' rplc 'xxx';y
  afincpath=: '/opt/arrayfire/include' NB. path to af includes
  
@@ -110,6 +128,7 @@ end.
 try. (t,'af_get_seed x *')cd <iresult catch. 'arrayfire lib load failed'assert 0 end.
 lib=: t
 backend=: y
+NO_SPARSE_DISPLAY=: 1
 i.0 0
 )
 
@@ -150,7 +169,7 @@ qresult=: ,_1  NB. address of string
 
 afx=: 4 : 0
 r=. (lib,x)cd y
-if. 0~:0{::r do. 'failed' assert 0 [echo af_err_to_string 0{::r end.
+if. 0~:0{::r do. 'failed' assert 0 [echo x,LF,af_err_to_string 0{::r end.
 r
 )
 
@@ -240,14 +259,26 @@ data=.  ,;(aftypes i. af_get_type y){00;0.0
 ''$1{::'af_get_scalar x * x'afx data;y
 )
 
+SPARSE_DISPLAY=: 0 : 0
+display/af_print sparse array messes up ref counts - freeall fails
+   NO_SPARSE_DISPLAY_jaf_=: 0 NB. allow display and avoid freeall check 
+)
+
 DISPLAYLIMIT=:     2000 NB. _1 for all
 DISPLAYPRECISION=: 6
 
 display=: 3 : 0
+if. NO_SPARSE_DISPLAY *. af_is_sparse vaf y do. i.0 0[echo SPARSE_DISPLAY return. end.
 a=. af_array_to_string (vaf y);DISPLAYPRECISION;1 NB. transpose
 r=. memr a,0,_1
 af_free_host a NB. free the host memory
 DISPLAYLIMIT{.r
+)
+
+NB. af_print_array to console
+af_print_array=: 3 : 0
+if. NO_SPARSE_DISPLAY *.af_is_sparse vaf y do. i.0 0[echo SPARSE_DISPLAY return. end.
+i.0 0['af_print_array x x'afx vaf y
 )
 
 af_info_string=: 3 : 0
@@ -309,11 +340,6 @@ vaf 1{::y
 1{::'af_get_data_ptr x * x'afx y
 )
 
-NB. af_print_array (af_array arr)
-af_print_array=: 3 : 0
-i.0 0['af_print_array x x'afx vaf y
-)
-
 NB. af_array_to_string (char **output, const char *exp, const af_array arr, const int precision, const bool transpose)
 af_array_to_string=: 3 : 0
 vaf 0{::y
@@ -353,6 +379,7 @@ r
 freeall=: 3 : 0
 release AFS
 af_device_gc''
+if. -.NO_SPARSE_DISPLAY do. i.0 0 return. end.
 assert 0=af_device_mem_info''
 i.0 0
 )
@@ -419,14 +446,6 @@ af_sparse_get_info=: 3 : 0
 ;1 2 3{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;vaf y
 )
 
-sparse_release=: 3 : 0
-a=. af_sparse_get_info vaf y
-release_jaf_ y
-'af_release_array x x'afx 0{a
-'af_release_array x x'afx 1{a
-'af_release_array x x'afx 2{a
-)
-
 af_get_data_ref_count=: 3 : 0
 ''$1{::'af_get_data_ref_count x *i x'afx iresult;vaf y
 )
@@ -441,12 +460,17 @@ web search: MKL FATAL ERROR: Cannot load libmkl_avxavx2.so or libmkl_def.so
 
 fix is to export LD_PRELOAD=... before starting J
 
-*** afrun.sh - script to run JHS with preload
+*** afrunjhs.sh - script to run JHS with preload
 #!/bin/bash
 export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
 j903/bin/jconsole ~addons/ide/jhs/config/jhs.cfg
 ***
 
+*** afrunjqt.sh - script to run Jqt with preload
+#!/bin/bash
+export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
+j903/bin/jqt
+***
 )
 
 NB. from test suite tsu.ijs - return expected error - used in Jd
