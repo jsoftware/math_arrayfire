@@ -2,76 +2,19 @@ NB. J arrayfire cd bindings
 
 coclass'jaf'
 
-man=: 0 : 0
-J-ArrayFire cd bindings
-
-if unfamiliar with arrayfire, browse: https://arrayfire.org
-arrayfire install hints: fread JAFP,'install/install.txt'
-
-arrayfire backend must be initialized before it can be used
- cpu    - always available and uses cpu memory and cores
- cuda   - available if you have suitable hardware and cuda software installed
- opencl - available if you have suitable hardware and opencl software installed
-
-   init_jaf_'cpu' NB. 'cpu' or 'cuda' or 'opencl'
-
-   man_test_jaf_  NB. labs, tests, examples, and benchmarks
-   man_col_jaf_   NB. col vs row major order
-   man_bugs_jaf_  NB. known bugs or problems
-
-   JAFP_z_        NB. path to scripts - usually ~addons/math/arrayfire
-
-util/util.ijs tools that create files from c headers
- families.ijs     - J cd  bindings for families of routines
- util/proto.txt   - all arrayfire c protypes
- util/famcnts.txt - count and 1st member of each family with same prototype
-
-*** credits
-Pascal Jasmin was the J-ArrayFire pioneer in 2015 with
- https://github.com/Pascal-J/Jfire
- 
-Alex Shroyer, in late 2021, did some new work and wrote a paper:
- https://alexshroyer.com/papers/matmul_j_gpu.pdf
-
-this addon started with a clean slate - it might be interesting 
- to see if it could be improved/replaced by the work of Pascal or Alex
+man=: 3 : 0
+d=. fread JAFP,'man.txt'
+bd=. <;.2 d
+i=. ((<'*** ')=4{.each bd)#i.#bd
+s=. i{bd
+if. ''-:y do. ;(<'   man_jaf_ '''),each(<'''',LF),each~}:each 4}.each s return. end.
+if. ''-:y do. y=. 'man' end.
+i=. ((#y){.each 4}.each bd)i.<y
+'invalid'assert i<#bd
+bd=. i}.bd
+i=. (4{.each }.bd) i. <'*** '
+;i{.bd
 )
-
-man_test=: 0 : 0
-   test_jaf_''            NB. names
-   test_jaf_'basic'       NB. script for basic
-   loadd test_jaf_'basic' NB. loadd basic
-   load"1 test_jaf_"1 test_jaf_'' NB. load all tests
-   load JAFP,'bench/mp_bench.ijs'
-   mptime 4000            NB. takes several seconds to run
-   
-JHS   
-   spx test_jaf_'create'  NB. JHS - run basic with spx
-
-Jqt
-   load'labs/labs'
-   lab test_jaf_ 'create' NB. run create test with lab
-)
-
-man_col=: 0 : 0
-J array is row major - AF array is column major
- af_create_array creates an AF array with verb rcc
- get reads the array back with an rcc inverse
-
-browse: https://arrayfire.org/docs/classaf_1_1array.htm
- and searchfor: {0, 1, 2, 3, 4, 5}
- to see how host data (raveled row major order) populates an AF array
- and to understand why rcc is necessary
-)
-
-man_bugs_=: 0 : 0
-*** sparse
- display/af_print_array sparse array messes up ref counts
- workaround is to ignore those requests with:
-   NO_SPARSE_DISPLAY=: 1
-)
-
-rcc=: 3 : '($y)$,|:y' NB. convert J data between row and col major
 
 3 : 0''
 NB. ensure different (production vs development) packages are not both loaded
@@ -89,7 +32,8 @@ else.
 end.
 JAFP_z_=: t
 if. _1=nc<'lib' do.
- AFS=: '' NB. valid af_array values
+ AFS=: ''   NB. valid normal af_array values
+ AFSSP=: '' NB. valid sparse af array values
  lib=: 'invalidlib'
  backend=: ''
 end.
@@ -97,23 +41,14 @@ end.
 
 require JAFP,'families.ijs' NB. define verbs for mop/dop/is/...
 
+NB. override af_is_sparse
+af_is_sparse=: 3 : 'AFSSP e.~ vafx y'
+
 NB. y is 'cpu' or 'cuda' or 'opencl'
 NB. af_set_backend is implicit in the lib that is used
 init=: 3 : 0
 'invalid backend'assert (<y) e. ;:'cpu cuda opencl'
 if. backend-:y do. i.0 0 return. end.
-
-if. (UNAME-:'Linux')*.y-:'cpu' do.
- NB. check if required LD_PRELOAD has been done
- try.
-  'libmkl_def.so foo x'cd''
- catch.
-  if. 1 0-:cder'' do. 
-   echo preload
-   'required LD_PRELOAD missing'assert 0
-  end.
- end. 
-end.
 
 select. UNAME
 case. 'Linux' do.
@@ -125,24 +60,59 @@ case. 'Win'   do.
  afincpath=: jpath (getenv'AF_PATH'),'/include' NB. path to af includes
 case.         do. 'need to set lib'assert 0
 end.
-try. (t,'af_get_seed x *')cd <iresult catch. 'arrayfire lib load failed'assert 0 end.
+try. (t,'af_get_seed x *')cd <iresult catch. 'arrayfire load failed'assert 0 [ echo afmissing end.
+
+if. (UNAME-:'Linux')*.y-:'cpu' do.
+ try.
+  'libmkl_def.so foo x'cd'' NB. check if required LD_PRELOAD has been done
+ catch.
+  if. 1 0-:cder'' do. 
+   echo preload
+   'required LD_PRELOAD missing'assert 0
+  end.
+ end. 
+end.
+
 lib=: t
 backend=: y
-NO_SPARSE_DISPLAY=: 1
 i.0 0
 )
 
-test=: 3 : 0
-require'labs/labs'
+NB. close current backend - allows new init 
+close=: 3 : 0
+assert ''-:y
+'freeall_jaf_'' must be run first'assert 0=#AFS,AFSSP
+backend=: ''
+lib=: 'invalidlib'
+i.0 0
+)
+
+tut=: 3 : 0
+if. IFJHS do.
+ runtut=: spx_jsp_
+else.
+ require'labs/labs'
+ runtut=: lab_z_
+end.
 if. ''-:y do.
- d=. 1 dir JAFP,'test'
- >_4}.each(>:;d i: each '/')}.each d
+ d=. 1 dir JAFP,'tutorial'
+ ;(<'   tut_jaf_ '''),each(<'''',LF),~each _4}.each(>:;d i: each '/')}.each d
  return.
 end. 
-f=. JAFP,'test/',(dltb y),'.ijs'
-'test does not exist'assert fexist f
-f
+f=. JAFP,'tutorial/',(dltb y),'.ijs'
+'tutorial does not exist'assert fexist f
+runtut f
 )
+
+tests=: 3 : 0
+d=. 1 dir JAFP,'tutorial'
+NB. (<''''),each '''',each~d
+)
+
+NB. from test suite tsu.ijs - return expected error
+etx_z_=: 1 : 'u :: (<:@(13!:11)@i.@0: >@{ 9!:8@i.@0:)'
+
+rcc=: 3 : '($y)$,|:y' NB. convert J data between row and col major
 
 NB. af constants from array.h etc
 'f32 c32 f64 c64 b8 s32 u32 u8 s64 u64 s16 u16 f16'=: i.13 NB. af array types
@@ -173,12 +143,15 @@ if. 0~:0{::r do. 'failed' assert 0 [echo x,LF,af_err_to_string 0{::r end.
 r
 )
 
-NB. AFS tracks valid af_array values
+NB. AFS tracks valid normal af_array values
 afsadd=: 3 : '''''$y[AFS=: AFS,y'
 
+NB. AFSSP tracks valid sparse af_array values
+afsspadd=: 3 : '''''$y[AFSSP=: AFSSP,y'
+
 NB. supported aftypes and corresponding J types
-aftypes=: s64,f64 
-jtypes =: 4   8
+aftypes=: s64, f64 
+jtypes =: 4  , 8
 
 aftype_from_jtype=: 3 : 0
 i=. jtypes i. 3!:0 y
@@ -193,11 +166,13 @@ i{::jtypes
 )
 
 NB. validate cd args - needs work - validation avoids crashes!
-vaf  =:  3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'         NB. validate af_array
-vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'  NB. validate rank
-vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'    NB. validate shape
-vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                 NB. validate af type
-vdim=:   3 : 'y[''bad dim''     assert (''''-:$y)*.(4=3!:0 y)*.5>y'  NB. validate dimension
+vaf=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'          NB. validate af_array
+vafsp=:  3 : 'y[''bad sparse af array''assert (''''-:$y)*.y e. AFSSP' NB. validate sparse af_array
+vafx=:   3 : 'y[''bad sparse or dense af array''assert (''''-:$y)*.y e. AFS,AFSSP' NB. validate sparse or dense af_array
+vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate rank
+vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'     NB. validate shape
+vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                  NB. validate af type
+vdim=:   3 : 'y[''bad dim''     assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate dimension
 
 NB. af_... verbs
 
@@ -249,26 +224,28 @@ get=: 3 : 0
 type=.  af_get_type y
 ndims=. af_get_numdims y
 dims=.  |.ndims{.af_get_dims y
-data=.  (*/dims)$;(aftypes i. type){00;0.0
+if. type=s32 do.
+ data=.  (4**/dims)$;{.a.
+ |:dims$_2 ic af_get_data_ptr data;y
+else.
+ data=.  (*/dims)$;(aftypes i. type){00;0.0
 |:dims$af_get_data_ptr data;y
+end. 
 )
 
-NB. get first element of af aray
+NB. get first element of af array
 get_scalar=: 3 : 0
 data=.  ,;(aftypes i. af_get_type y){00;0.0
 ''$1{::'af_get_scalar x * x'afx data;y
 )
 
-SPARSE_DISPLAY=: 0 : 0
-display/af_print sparse array messes up ref counts - freeall fails
-   NO_SPARSE_DISPLAY_jaf_=: 0 NB. allow display and avoid freeall check 
-)
+SPARSE_DISPLAY=: 'display/af_print sparse messes up ref counts'
 
 DISPLAYLIMIT=:     2000 NB. _1 for all
 DISPLAYPRECISION=: 6
 
 display=: 3 : 0
-if. NO_SPARSE_DISPLAY *. af_is_sparse vaf y do. i.0 0[echo SPARSE_DISPLAY return. end.
+SPARSE_DISPLAY assert -.y e. AFSSP
 a=. af_array_to_string (vaf y);DISPLAYPRECISION;1 NB. transpose
 r=. memr a,0,_1
 af_free_host a NB. free the host memory
@@ -277,7 +254,7 @@ DISPLAYLIMIT{.r
 
 NB. af_print_array to console
 af_print_array=: 3 : 0
-if. NO_SPARSE_DISPLAY *.af_is_sparse vaf y do. i.0 0[echo SPARSE_DISPLAY return. end.
+SPARSE_DISPLAY assert -.y e. AFSSP
 i.0 0['af_print_array x x'afx vaf y
 )
 
@@ -288,7 +265,8 @@ memr (1{::'af_info_string x * x'afx qresult;y),0,_1
 NB. AF_MAT_NONE for elided args
 af_matmul=: 3 : 0
 if. 2=#y do. y=. y,0;0 end.
-vaf each 2{.y
+vafx 0{::y
+vaf  1{::y
 afsadd 1{::'af_matmul x * x x x x'afx aresult;y
 )
 
@@ -309,7 +287,7 @@ afsadd 1{::(x,' x * x x x')afx aresult;y
 
 NB. af_is_... family - af_is_double ...
 is=: 4 : 0
-_255=1{::(x,' x * x')afx lresult;y
+_255=1{::(x,' x * x')afx lresult;vaf y
 )
 
 NB. af_sum family
@@ -323,15 +301,15 @@ reduce_all=: 4 : 0
 )
 
 af_get_type=: 3 : 0
-''$1{::'af_get_type x *i x'afx iresult;vaf y
+''$1{::'af_get_type x *i x'afx iresult;vafx y
 )
 
 af_get_numdims=: 3 : 0
-''$1{::'af_get_numdims x *i x'afx iresult;vaf y
+''$1{::'af_get_numdims x *i x'afx iresult;vafx y
 )
 
 af_get_dims=: 3 : 0
-;1 2 3 4{'af_get_dims x * * * * x'afx lresult;lresult;lresult;iresult;vaf y
+;1 2 3 4{'af_get_dims x * * * * x'afx lresult;lresult;lresult;iresult;vafx y
 )
 
 NB. result;af_array
@@ -369,6 +347,7 @@ af_get_seed=: 3 : 0
 
 NB. memory management
 
+
 NB. our af_array ref counting is dumb and assumes count of 1
 release=: 3 : 0"0
 r=. 'af_release_array x x'afx vaf y
@@ -376,10 +355,23 @@ AFS=: AFS-.y
 r
 )
 
+NB. our af_array ref counting is dumb and assumes count of 1
+release=: 3 : 0"0
+if. y e. AFS do.
+ AFS=: AFS-.y
+'af_release_array x x'afx y
+elseif. y e. AFSSP do.
+ AFSSP=: AFSSP-.y
+'af_release_array x x'afx y
+elseif. do.
+ vaf y
+end.
+i.0 0
+)
+
 freeall=: 3 : 0
-release AFS
+release AFS,AFSSP
 af_device_gc''
-if. -.NO_SPARSE_DISPLAY do. i.0 0 return. end.
 assert 0=af_device_mem_info''
 i.0 0
 )
@@ -390,6 +382,11 @@ i.0 0['af_eval x x'afx vaf y
 
 af_sync=: 3 : 0
 i.0 0['af_sync x x'afx y NB. x is device - user _1
+)
+
+NB. crashes if sparse
+af_get_data_ref_count=: 3 : 0
+''$1{::'af_get_data_ref_count x *i x'afx iresult;vaf y
 )
 
 af_device_gc=: 3 : 0
@@ -437,43 +434,62 @@ afsadd 1{::'af_inverse x * x x'afx aresult;y;0
 
 NB. sparse
 
+AF_STORAGE_DENSE     =: 0   
+AF_STORAGE_CSR       =: 1   
+AF_STORAGE_CSC       =: 2   
+AF_STORAGE_COO       =: 3    
+
+
+NB. data;rows;cols;AF_STORAGE_...;af type;af numdims;af_dims
+getsparse=: 3 : 0
+a=. af_sparse_get_info vafsp y
+r=. (get 0{a);(get 1{a);(get 2{a);({:a);(af_get_type y);(af_get_numdims y);af_get_dims y
+release"0 3{.a
+r
+)
+
+j_from_sparse=: 3 : 0
+'d r c t type rank shape'=. y
+assert AF_STORAGE_CSR=t
+assert 2=rank
+'rows cols'=.  rank{.shape
+rc=. }.}:(r,0)-0,r NB. data in each row
+i=. c+;(cols*i.rows)*each rc#each 1
+a=. d i}(rows*cols)$0
+(rows,cols)$a
+)
+
 af_create_sparse_array_from_dense=: 3 : 0
 vaf 0{::y
-afsadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
+afsspadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
 )
 
 af_sparse_get_info=: 3 : 0
-;1 2 3{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;vaf y
+r=. ;1 2 3 4{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;vafsp y
+afsadd 3{.r
+r
 )
 
-af_get_data_ref_count=: 3 : 0
-''$1{::'af_get_data_ref_count x *i x'afx iresult;vaf y
+NB. fails in cuda
+af_sparse_convert_to=: 3 : 0
+vaf 0{::y
+afsadd 1{::'af_sparse_convert_to x * x x'afx aresult;y
 )
 
-NB. stuff that may become obsolete
+NB. fails in cuda
+af_sparse_to_dense=: 3 : 0
+afsadd 1{::'af_sparse_to_dense x * x'afx aresult;vaf y
+)
+
+afmissing=: 0 : 0
+ArrayFire not installed or not installed where init is looking
+   man_jaf_'install arrayfire' NB. for more info
+)
+
 preload=: 0 : 0
-export LD_PRELOAD... required before starting J
+LD_PRELOAD is required
+   man_jaf_'preload' NB. more info and workaround
+)   
 
-this system will crash due to mismatch between ubuntu and arrayfire libs
-
-web search: MKL FATAL ERROR: Cannot load libmkl_avxavx2.so or libmkl_def.so
-
-fix is to export LD_PRELOAD=... before starting J
-
-*** afrunjhs.sh - script to run JHS with preload
-#!/bin/bash
-export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
-j903/bin/jconsole ~addons/ide/jhs/config/jhs.cfg
-***
-
-*** afrunjqt.sh - script to run Jqt with preload
-#!/bin/bash
-export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
-j903/bin/jqt
-***
-)
-
-NB. from test suite tsu.ijs - return expected error - used in Jd
-etx_z_=: 1 : 'u :: (<:@(13!:11)@i.@0: >@{ 9!:8@i.@0:)'
 
  

@@ -1,9 +1,5 @@
-NB. basic tests and examples
-
-mp=. +/ . *
-
+'init_jaf_ must be run to set backend'assert 0~:#backend_jaf_
 freeall_jaf_''  NB. release all AF arrays and do device garbage collection
-
 af_info_string_jaf_ 1 NB. verbose
 
 [afai=. af_create_array_jaf_ jai=. i.2 4
@@ -16,16 +12,6 @@ af_print_array_jaf_ afai NB. display afai array on console
 
 assert 'assertion failure'-:get_jaf_ etx 123 NB. test that bad AF array does not crash
 
-0 : 0
-J  array is stored in row major order
-AF array is stored in col major order
-
-af_create_array applies verb rcc to J array before setting the AF array
-get reverses the process when setting a J array from AF array data
-
-J data to set an AF array with (i.2 3) is: 0 3 1 4 2 5
-)
-
 assert ({.{.jai)=get_scalar_jaf_ afai
 
 t=.'no name',LF,'[2 4 1 1]',LF
@@ -35,7 +21,7 @@ afad=. af_create_array_jaf_ jad=. 0.5+?4 4$100
 afbd=. af_create_array_jaf_ jbd=. 0.3+?4 4$100
 
 afmm=. af_matmul_jaf_ afad;afbd
-assert (jad mp jbd)-:get_jaf_ afmm
+assert (jad (+/ . *) jbd)-:get_jaf_ afmm
 
 af_det_jaf_ afad NB. matrix determinate
 
