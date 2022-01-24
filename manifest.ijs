@@ -43,7 +43,5 @@ bench/mp_bench.ijs
 
 RELEASE=: 'j903'
 
-DEPENDS=: 0 : 0
-)
-
 FOLDER=: 'math/arrayfire'
+
