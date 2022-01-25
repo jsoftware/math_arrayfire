@@ -26,7 +26,8 @@ if. (UNAME-:'Darwin')*.2=#f do.
 end.
 'can not mix different arrayfire packages' assert 1=#f
 f=. (-<:#n)}.;f
-c=. #t=. jpath'~addons'
+if. UNAME-:'Darwin' do. f=. tolower f end.
+c=. #t=. jpath'~addons' 
 if. t-:c{.f do.
  t=. '~addons/',}.c}.f 
 else.
