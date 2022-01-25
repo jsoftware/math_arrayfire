@@ -63,8 +63,11 @@ Windows: ArrayFire v3.8.0 (Cuda 10.1)
  depends on normal install that:
   adds path to install folder to PATH env var 
   sets path to install folder in AF_PATH env var
+ default install: C:\Program Files\ArrayFire\v3 
 
-Linux: ldconfig steps are important!
+Linux:
+ ldconfig steps are important!
+ default install: /opt/arrayfire
 
 MacOS: ...
 
