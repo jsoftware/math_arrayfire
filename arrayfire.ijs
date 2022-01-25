@@ -17,24 +17,20 @@ i=. (4{.each }.bd) i. <'*** '
 )
 
 3 : 0''
-if. UNAME-:'Darwin' do.
- 'development not in ~addons not supported (lower vs upper case)'assert '~addons'
- t=. '~addons/math/arrayfire/'
-else. 
- NB. ensure different (production vs development) packages are not both loaded
- n=. '/arrayfire.ijs'
- d=. jpath each 4!:3''
- f=. (;(<n)-:each (-#n){.each d)#d
- 'can not mix different arrayfire packages' assert 1=#f
- f=. (-<:#n)}.;f
- c=. #t=. jpath'~addons'
- if. t-:c{.f do.
-  t=. '~addons/',}.c}.f 
- else.
-  c=. #t=. jpath'~'
-  if. t-:c{.f do. t=. }.c}.f end.
- end.
-end. 
+NB. ensure different (production vs development) packages are not both loaded
+n=. '/arrayfire.ijs'
+d=. jpath each 4!:3''
+f=. (;(<n)-:each (-#n){.each d)#d
+if. (UNAME-:'Darwin')*.(2=#f)*.=/tolower each f  do. f=. {.f end. NB. darwin case mess
+'can not mix different arrayfire packages' assert 1=#f
+f=. (-<:#n)}.;f
+c=. #t=. jpath'~addons'
+if. t-:c{.f do.
+ t=. '~addons/',}.c}.f 
+else.
+ c=. #t=. jpath'~'
+ if. t-:c{.f do. t=. }.c}.f end.
+end.
 JAFP_z_=: t
  
 if. _1=nc<'lib' do.
