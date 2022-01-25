@@ -21,7 +21,9 @@ NB. ensure different (production vs development) packages are not both loaded
 n=. '/arrayfire.ijs'
 d=. jpath each 4!:3''
 f=. (;(<n)-:each (-#n){.each d)#d
-if. (UNAME-:'Darwin')*.(2=#f)*.=/tolower each f  do. f=. {.f end. NB. darwin case mess
+if. (UNAME-:'Darwin')*.2=#f do.
+ if. =/tolower each f  do. f=. {.f end. NB. darwin case mess
+end.
 'can not mix different arrayfire packages' assert 1=#f
 f=. (-<:#n)}.;f
 c=. #t=. jpath'~addons'
