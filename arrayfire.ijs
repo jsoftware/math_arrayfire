@@ -58,7 +58,7 @@ if. backend-:y do. i.0 0 return. end.
 select. UNAME
 case. 'Linux'  do. t=. 'libafxxx.so '
 case. 'Win'    do. t=. 'afxxx.dll '
-case. 'Darwin' do. t=. '/opt/arrayfire/libafxxx.dylib '
+case. 'Darwin' do. t=. '/opt/arrayfire/lib/libafxxx.dylib '
 case.          do. 'host not supported'assert 0 
 end.
 t=. t rplc 'xxx';y
