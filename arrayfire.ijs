@@ -3,7 +3,7 @@ NB. J arrayfire cd bindings
 coclass'jaf'
 
 man=: 3 : 0
-d=. fread JAFP,'man.txt'
+d=. toJ fread JAFP,'man.txt'
 bd=. <;.2 d
 i=. ((<'*** ')=4{.each bd)#i.#bd
 s=. i{bd
