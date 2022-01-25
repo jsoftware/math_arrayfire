@@ -17,20 +17,26 @@ i=. (4{.each }.bd) i. <'*** '
 )
 
 3 : 0''
-NB. ensure different (production vs development) packages are not both loaded
-n=. '/arrayfire.ijs'
-d=. jpath each 4!:3''
-f=. (;(<n)-:each (-#n){.each d)#d
-'can not mix different arrayfire packages' assert 1=#f
-f=. (-<:#n)}.;f
-c=. #t=. jpath'~addons'
-if. t-:c{.f do.
- t=. '~addons/',}.c}.f 
-else.
- c=. #t=. jpath'~'
- if. t-:c{.f do. t=. }.c}.f end.
-end.
+if. UNAME-:'Darwin' do.
+ 'development not in ~addons not supported (lower vs upper case)'assert '~addons'
+ t=. '~addons/math/arrayfire/'
+else. 
+ NB. ensure different (production vs development) packages are not both loaded
+ n=. '/arrayfire.ijs'
+ d=. jpath each 4!:3''
+ f=. (;(<n)-:each (-#n){.each d)#d
+ 'can not mix different arrayfire packages' assert 1=#f
+ f=. (-<:#n)}.;f
+ c=. #t=. jpath'~addons'
+ if. t-:c{.f do.
+  t=. '~addons/',}.c}.f 
+ else.
+  c=. #t=. jpath'~'
+  if. t-:c{.f do. t=. }.c}.f end.
+ end.
+end. 
 JAFP_z_=: t
+ 
 if. _1=nc<'lib' do.
  AFS=: ''   NB. valid normal af_array values
  AFSSP=: '' NB. valid sparse af array values
@@ -53,7 +59,7 @@ if. backend-:y do. i.0 0 return. end.
 select. UNAME
 case. 'Linux'  do. t=. 'libafxxx.so '
 case. 'Win'    do. t=. 'afxxx.dll '
-case. 'Darwin' do. t=. 'afxxx.dylib '
+case. 'Darwin' do. t=. '/opt/arrayfire/afxxx.dylib '
 case.          do. 'host not supported'assert 0 
 end.
 t=. t rplc 'xxx';y
