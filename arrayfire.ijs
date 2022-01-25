@@ -51,16 +51,13 @@ init=: 3 : 0
 if. backend-:y do. i.0 0 return. end.
 
 select. UNAME
-case. 'Linux' do.
- t=. 'libafxxx.so ' rplc 'xxx';y
- afincpath=: '/opt/arrayfire/include' NB. path to af includes
- 
-case. 'Win'   do.
- t=. 'afxxx.dll ' rplc 'xxx';y
- afincpath=: jpath (getenv'AF_PATH'),'/include' NB. path to af includes
-case.         do. 'need to set lib'assert 0
+case. 'Linux'  do. t=. 'libafxxx.so '
+case. 'Win'    do. t=. 'afxxx.dll '
+case. 'Darwin' do. t=. 'afxxx.dylib '
+case.          do. 'host not supported'assert 0 
 end.
-try. (t,'af_get_seed x *')cd <iresult catch. 'arrayfire load failed'assert 0 [ echo afmissing end.
+t=. t rplc 'xxx';y
+try. (t,'af_get_seed x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
  try.

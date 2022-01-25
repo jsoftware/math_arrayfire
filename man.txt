@@ -60,7 +60,9 @@ if arrayfire is not already installed, you need to install it
   download installer and follow the instructions
 
 Windows: ArrayFire v3.8.0 (Cuda 10.1)
- install sets env var AF_PATH as path to the install
+ depends on normal install that:
+  adds path to install folder to PATH env var 
+  sets path to install folder in AF_PATH env var
 
 Linux: ldconfig steps are important!
 

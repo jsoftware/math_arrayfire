@@ -2,6 +2,15 @@ coclass'jaf'
 
 NB. get c header file names and contents
 getincs=: 3 : 0
+select. UNAME
+case. 'Linux' do.
+ t=. '/opt/arrayfire/include' NB. path to af includes
+case. 'Win'   do.
+ t=. jpath (getenv'AF_PATH'),'/include' NB. path to af includes
+case.         do.
+ t=. 'path to af incluees ???'
+end.
+afincpath=: t
 incfiles=: {."1 dirtree afincpath
 inclines=: fread each incfiles
 i.0 0
