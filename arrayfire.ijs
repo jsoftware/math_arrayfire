@@ -277,32 +277,6 @@ afsadd 1{::'af_matmul x * x x x x'afx aresult;y
 af_det=: 3 : 0
 ;1 2{'af_det x * * x'afx dresult;dresult;vaf y 
 )
-NB. moadics family - af_sin ...
-mop=: 4 : 0
-afsadd 1{::(x,' x * x') afx aresult;vaf y
-)
-
-NB. dyadics familty - af_add ... - af1;af2 [;batch_boolean]
-dop=: 4 : 0
-if. 2=#y do. y=. y,<0 end. 
-vaf each 2{.y
-afsadd 1{::(x,' x * x x x')afx aresult;y
-)
-
-NB. af_is_... family - af_is_double ...
-is=: 4 : 0
-_255=1{::(x,' x * x')afx lresult;vaf y
-)
-
-NB. af_sum family
-reduce=: 4 : 0
-afsadd 1{::(x,' x * x x')afx aresult; (vaf>{.y);}.y
-)
-
-NB. af_sum_all family
-reduce_all=: 4 : 0
-;1 2{(x,' x * * x')afx dresult;dresult;vaf y
-)
 
 af_get_type=: 3 : 0
 ''$1{::'af_get_type x *i x'afx iresult;vafx y

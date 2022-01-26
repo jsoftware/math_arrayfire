@@ -1,5 +1,32 @@
 coclass 'jaf'
 
+NB. moadics family - af_sin ...
+mop=: 4 : 0
+afsadd 1{::(x,' x * x') afx aresult;vaf y
+)
+
+NB. dyadics familty - af_add ... - af1;af2 [;batch_boolean]
+dop=: 4 : 0
+if. 2=#y do. y=. y,<0 end. 
+vaf each 2{.y
+afsadd 1{::(x,' x * x x x')afx aresult;y
+)
+
+NB. af_is_... family - af_is_double ...
+is=: 4 : 0
+_255=1{::(x,' x * x')afx lresult;vaf y
+)
+
+NB. af_sum family
+reduce=: 4 : 0
+afsadd 1{::(x,' x * x x')afx aresult; (vaf>{.y);}.y
+)
+
+NB. af_sum_all family
+reduce_all=: 4 : 0
+;1 2{(x,' x * * x')afx dresult;dresult;vaf y
+)
+
 af_abs=: 'af_abs'mop]
 af_acos=: 'af_acos'mop]
 af_acosh=: 'af_acosh'mop]
