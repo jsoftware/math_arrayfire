@@ -17,16 +17,26 @@ i=. (4{.each }.bd) i. <'*** '
 )
 
 3 : 0''
+select. UNAME
+case. 'Linux'  do. t=. 'libafxxx.so ' NB. depends on ldconfig
+case. 'Win'    do. t=. 'afxxx.dll '   NB. depends on AF_PATH and PATH env vars
+case. 'Darwin' do. t=. '/opt/arrayfire/lib/libafxxx.dylib ' NB. full path
+case.          do. 'host not supported'assert 0 
+end.
+libtemplate=: t
+
 NB. ensure different (production vs development) packages are not both loaded
 n=. '/arrayfire.ijs'
 d=. jpath each 4!:3''
 f=. (;(<n)-:each (-#n){.each d)#d
-if. (UNAME-:'Darwin')*.2=#f do.
- if. =/tolower each f  do. f=. {.f end. NB. darwin case mess
+
+if. UNAME-:'Darwin'do. NB. macos upper/lower case
+ f=. tolower each f
+ if. 2=#f do. if. =/f do. f=. {.f end. end.
 end.
+
 'can not mix different arrayfire packages' assert 1=#f
 f=. (-<:#n)}.;f
-if. UNAME-:'Darwin' do. f=. tolower f end.
 c=. #t=. jpath'~addons' 
 if. t-:c{.f do.
  t=. '~addons/',}.c}.f 
@@ -54,15 +64,9 @@ NB. af_set_backend is implicit in the lib that is used
 init=: 3 : 0
 'invalid backend'assert (<y) e. ;:'cpu cuda opencl'
 if. backend-:y do. i.0 0 return. end.
-
-select. UNAME
-case. 'Linux'  do. t=. 'libafxxx.so '
-case. 'Win'    do. t=. 'afxxx.dll '
-case. 'Darwin' do. t=. '/opt/arrayfire/lib/libafxxx.dylib '
-case.          do. 'host not supported'assert 0 
-end.
-t=. t rplc 'xxx';y
-try. (t,'af_get_seed x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
+lib=: libtemplate rplc 'xxx';y
+backend=: y
+try. (lib,'af_get_seedq x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
  try.
@@ -75,8 +79,6 @@ if. (UNAME-:'Linux')*.y-:'cpu' do.
  end. 
 end.
 
-lib=: t
-backend=: y
 i.0 0
 )
 

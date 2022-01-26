@@ -55,7 +55,7 @@ util/util.ijs tools that create files from c headers
  util/famcnts.txt - count and 1st member of each family with same prototype
 
 *** install arrayfire
-if arrayfire is not already installed, you need to install it
+you need to have arrayfire installed
  https://arrayfire.org
   download installer and follow the instructions
 
@@ -63,15 +63,19 @@ Windows: ArrayFire v3.8.0 (Cuda 10.1)
  depends on normal install that:
   adds path to install folder to PATH env var 
   sets path to install folder in AF_PATH env var
- default install: C:\Program Files\ArrayFire\v3 
+ default install: C:\Program Files\ArrayFire\v?
 
 Linux:
  ldconfig steps are important!
  default install: /opt/arrayfire
 
-MacOS: ...
+MacOS:
+ default install: /opt/arrayfire
 
-start J
+loading arraryfire.ijs sets libtemplate for loading the library
+ after load, and before init, you could change libtemplate if required
+
+test the installation with J
    load'~addons/math/arrayfire.ijs'
    man_jaf_
    init_jaf_'cpu'
