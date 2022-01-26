@@ -66,7 +66,7 @@ init=: 3 : 0
 if. backend-:y do. i.0 0 return. end.
 lib=: libtemplate rplc 'xxx';y
 backend=: y
-try. (lib,'af_get_seedq x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
+try. (lib,'af_get_seed x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
  try.
