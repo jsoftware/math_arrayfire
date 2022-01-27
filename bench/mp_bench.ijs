@@ -11,7 +11,7 @@ jb=: (y,y)$0.7+?17$5000
 r=.   timex'jr=: ja mp jb'
 r=. r,timex'afa=: af_create_array_jaf_ ja'
 r=. r,timex'afb=: af_create_array_jaf_ jb'
-r=. r,timex'afp=:af_matmul_jaf_ afa;afb;0;0'
+r=. r,timex'afp=:af_matmul_jaf_ afa,afb'
 r=. r,timex'af_sync_jaf_ _1'
 r=. r,timex'afr=: get_jaf_ afp'
 
