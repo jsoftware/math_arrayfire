@@ -22,6 +22,12 @@ arrayfire backend must be initialized before it can be used
    tut_jaf_''            NB. list tutorials
    tut_jaf_'basic'       NB. run basic
 
+*** change backend
+you can switch to another backend
+   freeall_jaf_''    NB. release storage in current backend
+   close_jaf_''      NB. allow init of new backend
+   init_jaf_'opencl'
+
 *** tests
 tutorial scripts also serve as tests
 

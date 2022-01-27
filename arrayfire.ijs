@@ -65,7 +65,6 @@ init=: 3 : 0
 'invalid backend'assert (<y) e. ;:'cpu cuda opencl'
 if. backend-:y do. i.0 0 return. end.
 lib=: libtemplate rplc 'xxx';y
-backend=: y
 try. (lib,'af_get_seed x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
@@ -79,6 +78,7 @@ if. (UNAME-:'Linux')*.y-:'cpu' do.
  end. 
 end.
 
+backend=: y
 i.0 0
 )
 
@@ -268,10 +268,10 @@ memr (1{::'af_info_string x * x'afx qresult;y),0,_1
 
 NB. AF_MAT_NONE for elided args
 af_matmul=: 3 : 0
-if. 2=#y do. y=. y,0;0 end.
-vafx 0{::y
-vaf  1{::y
-afsadd 1{::'af_matmul x * x x x x'afx aresult;y
+if. 2=#y do. y=. y,0 0 end.
+vafx 0{y
+vaf  1{y
+afsadd 1{::'af_matmul x * x x x x'afx aresult;<"0 y
 )
 
 af_det=: 3 : 0

@@ -5,11 +5,11 @@ mop=: 4 : 0
 afsadd 1{::(x,' x * x') afx aresult;vaf y
 )
 
-NB. dyadics familty - af_add ... - af1;af2 [;batch_boolean]
+NB. dyadics familty - af_add ... - af1,af2 [,batch_boolean]
 dop=: 4 : 0
-if. 2=#y do. y=. y,<0 end. 
-vaf each 2{.y
-afsadd 1{::(x,' x * x x x')afx aresult;y
+if. 2=#y do. y=. y,0 end. 
+vaf"0[2{.y
+afsadd 1{::(x,' x * x x x')afx aresult;<"0 y
 )
 
 NB. af_is_... family - af_is_double ...
@@ -19,7 +19,8 @@ _255=1{::(x,' x * x')afx lresult;vaf y
 
 NB. af_sum family
 reduce=: 4 : 0
-afsadd 1{::(x,' x * x x')afx aresult; (vaf>{.y);}.y
+vaf {.y
+afsadd 1{::(x,' x * x x')afx aresult;<"0 y
 )
 
 NB. af_sum_all family

@@ -31,8 +31,8 @@ assert a-:data
 
 bf=. af_create_array_jaf_ b=.10 10$ 134.5 145.3 156.2
 
-q=. af_matmul_jaf_ saf;bf;0;0
-display_jaf_ q
+q=. af_matmul_jaf_ saf,bf,0 0
+NB. display_jaf_ q NB. useful if it works, but does not work on all platforms
 
 assert (get_jaf_ q)-:a (+/ . *) b
 
