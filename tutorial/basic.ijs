@@ -25,12 +25,11 @@ assert (jad (+/ . *) jbd)-:get_jaf_ afmm
 
 af_det_jaf_ afad NB. matrix determinate
 
-NB. modadic
+NB. monadic
 assert (1 o. jad)-:get_jaf_ af_sin_jaf_ afad
 assert (2 o. jad)-:get_jaf_ af_cos_jaf_ afad
 
 NB. dyadics
-assert (jad+jbd)-:get_jaf_ af_add_jaf_ afad;afbd
 assert (jad+jbd)-:get_jaf_ af_add_jaf_ afad;afbd
 assert (jad%jbd)-:get_jaf_ af_div_jaf_ afad;afbd
 
