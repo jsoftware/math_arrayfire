@@ -71,6 +71,8 @@ Linux:
 
 MacOS:
  default install: /opt/arrayfire
+ alternatively install via homebrew
+ $ brew install arrayfire
 
 loading arraryfire.ijs sets libtemplate for loading the library
  after load, and before init, you could change libtemplate if required
