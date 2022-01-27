@@ -16,7 +16,7 @@ high performance computing for things like matrix multiply
 with cpu cores, Nvidia gpus, and opencl.
 )
 
-VERSION=: '2.1.3'
+VERSION=: '2.1.4'
 
 FILES=: 0 : 0
 manifest.ijs
