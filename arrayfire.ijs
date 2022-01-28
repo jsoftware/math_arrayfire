@@ -17,8 +17,6 @@ i=. (4{.each }.bd) i. <'*** '
 )
 
 3 : 0''
-if. _1=nc<'nointro' do. nointro=: 1[echo man'intro' end.
-
 select. UNAME
 case. 'Linux'  do. t=. 'libafxxx.so ' NB. depends on ldconfig
 case. 'Win'    do. t=. 'afxxx.dll '   NB. depends on AF_PATH and PATH env vars
@@ -54,6 +52,8 @@ if. _1=nc<'lib' do.
  lib=: 'invalidlib'
  backend=: ''
 end.
+
+if. _1=nc<'nointro' do. nointro=: 1[echo man'intro' end.
 )
 
 require JAFP,'families.ijs' NB. define verbs for mop/dop/is/...
