@@ -17,6 +17,8 @@ i=. (4{.each }.bd) i. <'*** '
 )
 
 3 : 0''
+if. _1=nc<'nointro' do. nointro=: 1[echo man'intro' end.
+
 select. UNAME
 case. 'Linux'  do. t=. 'libafxxx.so ' NB. depends on ldconfig
 case. 'Win'    do. t=. 'afxxx.dll '   NB. depends on AF_PATH and PATH env vars
@@ -143,7 +145,7 @@ qresult=: ,_1  NB. address of string
 
 afx=: 4 : 0
 r=. (lib,x)cd y
-if. 0~:0{::r do. 'failed' assert 0 [echo x,LF,af_err_to_string 0{::r end.
+if. 0~:0{::r do. 'af cd call error result' assert 0 [LASTERROR=: (":0{::r),' ',(x{.~x i.' '),' ',af_err_to_string 0{::r end.
 r
 )
 
@@ -176,6 +178,7 @@ vafx=:   3 : 'y[''bad sparse or dense af array''assert (''''-:$y)*.y e. AFS,AFSS
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate rank
 vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'     NB. validate shape
 vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                  NB. validate af type
+vtype=:  3 : 'y'
 vdim=:   3 : 'y[''bad dim''     assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate dimension
 
 NB. af_... verbs
@@ -185,8 +188,18 @@ NB. out values are not in y and are set as
 NB.  aresult, iresult, lresult, or qresult as required
 NB. out values are returned
 
+NB. monad gets type from y - dyad x is aftype
 af_create_array=: 3 : 0
 afsadd 1{::'af_create_array x * * x * x' afx aresult;(rcc y);(vrank #$y);(vshape $y);aftype_from_jtype y
+:
+select. x
+case. f64;s64 do. af_create_array y return.
+case. f32 do.
+ p=. 1 fc ,rcc y
+ a=. p;(vrank #$y);(vshape $y);f32
+case.         do. 'unsupported aftype' assert 0
+end.
+afsadd 1{::'af_create_array x * * x * x' afx aresult;a
 )
 
 NB. constant is a double - coerced to type
@@ -228,12 +241,21 @@ get=: 3 : 0
 type=.  af_get_type y
 ndims=. af_get_numdims y
 dims=.  |.ndims{.af_get_dims y
-if. type=s32 do.
+select. type
+case. s32 do.
  data=.  (4**/dims)$;{.a.
  |:dims$_2 ic af_get_data_ptr data;y
-else.
- data=.  (*/dims)$;(aftypes i. type){00;0.0
-|:dims$af_get_data_ptr data;y
+case. f32 do.
+ data=.  (4**/dims)$;{.a.
+ |:dims$_1 fc af_get_data_ptr data;y
+case. f64 do.
+ data=.  (*/dims)$0.0
+ |:dims$af_get_data_ptr data;y
+case. s64 do.
+ data=.  (*/dims)$00
+ |:dims$af_get_data_ptr data;y
+case.     do.
+ 'unable to get that type'assert 0
 end. 
 )
 

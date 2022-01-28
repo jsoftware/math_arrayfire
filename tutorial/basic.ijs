@@ -35,14 +35,13 @@ NB. reduceall
 assert (0,~+/+/jad)-:af_sum_all_jaf_ afad
 assert (0,~*/*/jad)-:af_product_all_jaf_ afad
 
-NB. reduce dimension
-NB. row vs col major order!
+NB. reduce dimension - row vs col major order!
 NB. af_... dimension is 0 origin and from the view of col major
 NB. J +/"1 maps to AF 1 - J +/"2 maps to AF 0
 assert (+/"1 jad)-: get_jaf_ af_sum_jaf_     afad,1
 assert (+/"2 jad)-:,get_jaf_ af_sum_jaf_     afad,0 NB. , is required!
 assert (*/"1 jad)-: get_jaf_ af_product_jaf_ afad,1
+'assertion failure'-:af_sum_jaf_ etx afad,23
+LASTERROR_jaf_
 
-AFS_jaf_ NB. list of valid AF array handles
 freeall_jaf_'' NB. release all AF arrays and do device garbage collection
-assert 0=#AFS_jaf_

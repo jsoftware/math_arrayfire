@@ -1,5 +1,3 @@
-NB. create AF array tests and examples
-
 freeall_jaf_'' NB. release all AF arrays and do device garbage collection
 
 afai=. af_create_array_jaf_ i.3 4
@@ -7,10 +5,14 @@ get_jaf_          afai
 af_get_type_jaf_     afai
 aftypes_jaf_,.jtypes_jaf_ NB. aftype and corresponding jtype
 af_get_numdims_jaf_ afai
-af_get_dims_jaf_     afai
+af_get_dims_jaf_     afai NB. af arrays always have shape with 4 elements
 
 afad=. af_create_array_jaf_ 2.3+i.3 4
 get_jaf_          afad
+
+afshort=. f32_jaf_ af_create_array_jaf_ 1.5+i.2 2 NB. 32bit float
+af_get_type_jaf_   afshort NB. 0 is 32bit float type
+get_jaf_ afshort
 
 afcd=. af_constant_jaf_ 1234.56;2 3;f64_jaf_
 get_jaf_ afcd
