@@ -3,9 +3,10 @@ NB. benchmark j vs af matmul performance
 mp=: +/ . *
 
 0 : 0
-   f32_jaf_ mptime 10000 NB. 32bit float time matric product 10000*10000
-   f64_jaf_ mptime 10000 NB. 64bit float time matric product 10000*10000
-   mpx             10000 NB. 64bit and 32bit reports
+   f32_jaf_ mptime 1000 NB. 32bit float time matrix product 1000*1000
+   f64_jaf_ mptime 1000 NB. 64bit float time matrix product
+   mpx             1000 NB. 64bit and 32bit reports
+                        NB. try with larger arrays - e.g., 10000   
 
 acreate/bcreate/get rows - millis to move data between backend and cpu
 matmul                   - start the backend op

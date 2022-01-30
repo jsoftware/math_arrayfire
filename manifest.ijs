@@ -16,7 +16,7 @@ high performance computing for things like matrix multiply
 with cpu cores, Nvidia gpus, and opencl.
 )
 
-VERSION=: '2.1.7'
+VERSION=: '2.1.8'
 
 FILES=: 0 : 0
 manifest.ijs
@@ -38,7 +38,7 @@ tutorial/basic.ijs
 tutorial/sparse.ijs 
 tutorial/inverse.ijs
 tutorial/create.ijs 
-bench/mp_bench.ijs
+bench/matmul.ijs
 )
 
 RELEASE=: 'j903'

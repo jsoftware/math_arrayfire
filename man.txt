@@ -8,8 +8,8 @@ J-ArrayFire cd bindings - https://arrayfire.org
 
 arrayfire backend must be initialized before it can be used
  cpu    - always available and uses cpu memory and cores
- cuda   - available if you have suitable hardware and cuda installed
- opencl - available if you have suitable hardware and opencl installed
+ opencl - always available (arrayfire includes it) - uses available hardware
+ cuda   - available if you have cuda software and suitable hardware installed
 
    init_jaf_'cpu'   NB. 'cpu' or 'cuda' or 'opencl'
 
@@ -36,8 +36,7 @@ tutorial scripts also serve as tests
    load  1 dir JAFP,'tutorial'      NB. run all 
 
 *** benchmarks
-   load JAFP,'bench/mp_bench.ijs'
-   mptime 4000            NB. takes several seconds to run
+   study files in folder: JAFP,'bench'
 
 *** row major vs col major
 J array is row major - AF array is column major

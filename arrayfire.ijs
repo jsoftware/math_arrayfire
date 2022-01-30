@@ -66,8 +66,17 @@ NB. af_set_backend is implicit in the lib that is used
 init=: 3 : 0
 'invalid backend'assert (<y) e. ;:'cpu cuda opencl'
 if. backend-:y do. i.0 0 return. end.
-lib=: libtemplate rplc 'xxx';y
-try. (lib,'af_get_seed x *')cd <iresult catch. ('load library failed: ',t)assert 0 [ echo afmissing end.
+t=. libtemplate rplc 'xxx';y
+m=. afmissing
+try. (t,'af_get_seed x *')cd <iresult
+catch.
+ if. y-:'cuda' do.
+  m=. cudamissing
+  try. ((libtemplate rplc 'xxx';'cpu'),'af_get_seed x *')cd <iresult
+  catch. m=. afmissing end.
+ end. 
+ ('load library failed: ',t)assert 0 [ echo m
+end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
  try.
@@ -80,6 +89,7 @@ if. (UNAME-:'Linux')*.y-:'cpu' do.
  end. 
 end.
 
+lib=: t
 backend=: y
 i.0 0
 )
@@ -484,6 +494,11 @@ afsadd 1{::'af_sparse_to_dense x * x'afx aresult;vaf y
 afmissing=: 0 : 0
 ArrayFire not installed or not installed where init is looking
    man_jaf_'install arrayfire' NB. for more info
+)
+
+cudamissing=: 0 : 0
+Nvidia cuda is not installed or not installed where init is looking
+   man_jaf_'install cuda' NB. for more info
 )
 
 preload=: 0 : 0
