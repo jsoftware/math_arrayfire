@@ -1,5 +1,9 @@
 NB. J arrayfire cd bindings
 
+NB. a=. af_randu_jaf_ 4 4;2
+NB. b=. af_randu_jaf_ 4 4;2
+NB. t2=. afsadd_jaf_ 1{::'git/addons/math/arrayfire/c/libdll.so c_test x * x x' cd aresult_jaf_;(vaf_jaf_ a);vaf_jaf_ b
+
 coclass'jaf'
 
 man=: 3 : 0

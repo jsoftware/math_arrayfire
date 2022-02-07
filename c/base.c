@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <arrayfire.h>
 // Generate random data and sum and print the result
 int main(void)

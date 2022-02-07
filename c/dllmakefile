@@ -1,20 +1,29 @@
+# makes dll rather that libdll.so - fix this
+
 # > cd git/addons/math/arrayfire/c
-# > make target=base or sparse or ...
-# > ./base or sparse or ...
+# > make target=dll -f dllmakefile
+# > J cd '...../libdll.so ....' cd '''
+
+# -fno-gnu-unique !!! necessary to allow dlclose to unload the library
+
 LIBS=-lafcpu
 LDFLAGS=-shared -Wl,-soname,libdll.so
 LIB_PATHS=-L/opt/arrayfire/lib64
-CFLAGS=-fPIC -O2 -fvisibility=default
+CFLAGS=-fPIC -O2 -fvisibility=default -fno-gnu-unique
 INCLUDES=-I/opt/arrayfire/include
-CC=gcc	$(COMPILER_OPTIONS)
-COMPILER_OPTIONS=-g
+
+CC=g++	$(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11 -g
+
+#CC=gcc	$(COMPILER_OPTIONS)
+#COMPILER_OPTIONS=-g
 
 OBJS=  \
  dll.o
 
 %.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS)
 
 $(target) : $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o lib$(target).so $(OBJS) $(LIBS)  $(LIB_PATHS) $(LDFLAGS)
 
