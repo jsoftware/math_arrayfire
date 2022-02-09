@@ -10,18 +10,18 @@ this tutorial shows a simple example of adding custom c/cpp routines
 )
 
 0 : 0
-you need to build a shared library with your routines for your backend
-e.g., libxafcpu.so is the shared libaray to use with the cpu backend
+build a shared library with your routines for your backend
+for example, built a shared library from source xaf.cpp for cpu backend
+the linux shared library will be: libxafcpu.so
 
 linux:
 $ cd j903/addons/math/arrayfire/c
-$ rm dll.o
-$ make target=xaf backend=cpu -B -f dllmakefile # -B forces build of lib$(target)$(backend).sl
+$ ./xaf_build.sh xaf cpu
 
 windows:
 > cd j903\addons\math\arrayfire\c
 > vcvars64.bat    - only do this once
-> build.bat xaf cpu
+> xaf_build.bat xaf cpu
 )
 
 3 : 0''
