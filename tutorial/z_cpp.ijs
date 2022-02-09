@@ -14,21 +14,24 @@ this tutorial shows a simple example of adding custome c/cpp routines
 you need to build a shared library with your routines
 
 linux:
-$ cd /home/eric/j903/addons/math/arrayfire/c
+$ cd j903/addons/math/arrayfire/c
 $ rm dll.o
 $ make target=dll -f dllmakefile
 
 windows:
-$ cd \users\eric\j903\addons\math\arrayfire\c
-$ rm dll.o
+> cd j903\addons\math\arrayfire\c
+> vcvars64.bat    - only do this once
+> build.bat
 )
 
 3 : 0''
-p=. jpath'~addons/math/arrayfire/c/'
-
-p=. 'git/addons/math/arrayfire/c/'
-
-libxaf_jaf_=: p,'libdll.so '
+select. UNAME
+case. 'Win'    do. t=. 'dll.dll'
+case. 'Linux'  do. t=. 'libdll.so'
+case. 'Darwin' do. t=. 'libdll.dylib'
+case.          do. 'host not supported'assert 0
+end.
+libxaf_jaf_=: JAFP,'c/',t,' '
 )
 
 xafx_jaf_=: 4 : 0
@@ -64,8 +67,11 @@ freeall_jaf_''
 
 a1=: af_randu_jaf_ 4 4;f64_jaf_
 a2=: af_randu_jaf_ 4 4;f64_jaf_
-a3=: xaf_matmul_jaf_ a,b
+a3=: xaf_matmul_jaf_ a1,a2
+get_jaf_ a3
 
 a4=: xaf_randu_jaf_ 4
+get_jaf_ a4
 
 a5=: xaf_gridxy_jaf_ 3
+get_jaf_ a5
