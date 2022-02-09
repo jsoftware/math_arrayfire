@@ -1,22 +1,22 @@
 0 : 0
-you can add c/cpp routines to extend the arrayfire af_... routines
-in some cases this can be easier in c (af_... routines)
-and can be much easier in cpp as that is the preferred arrayfire interface
+you can add cpp routines to extend the arrayfire af_... routines
+in some cases this can be easier in c/cpp than with the J binding to af_... routines
+the cpp support for arrayfire has many nice fas that is the preferred arrayfire interface
 
 this makes it easy to take an exisiting arrayfire routine written in c/cpp
 and plug it into your J workflow
 
-this tutorial shows a simple example of adding custome c/cpp routines
-
+this tutorial shows a simple example of adding custom c/cpp routines
 )
 
 0 : 0
-you need to build a shared library with your routines
+you need to build a shared library with your routines for your backend
+e.g., libxafcpu.so is the shared libaray to use with the cpu backend
 
 linux:
 $ cd j903/addons/math/arrayfire/c
 $ rm dll.o
-$ make target=dll -f dllmakefile
+$ make target=xaf backend=cpu -B -f dllmakefile # -B forces build of lib$(target)$(backend).sl
 
 windows:
 > cd j903\addons\math\arrayfire\c
@@ -25,12 +25,14 @@ windows:
 )
 
 3 : 0''
+'backend not set by init'assert 0~:#backend_jaf_
 select. UNAME
-case. 'Win'    do. t=. 'dll.dll'
-case. 'Linux'  do. t=. 'libdll.so'
-case. 'Darwin' do. t=. 'libdll.dylib'
+case. 'Win'    do. t=. 'afq.dll'
+case. 'Linux'  do. t=. 'libxafq.so'
+case. 'Darwin' do. t=. 'libxafq.dylib'
 case.          do. 'host not supported'assert 0
 end.
+t=. t rplc 'q';backend_jaf_
 libxaf_jaf_=: JAFP,'c/',t,' '
 )
 

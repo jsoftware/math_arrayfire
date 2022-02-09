@@ -1,9 +1,4 @@
-# makes dll rather that libdll.so - fix this
-
-# > cd git/addons/math/arrayfire/c
-# > make target=dll -f dllmakefile
-# > J cd '...../libdll.so ....' cd '''
-
+# see arrayfire tutorial xaf_cpp for more info
 # -fno-gnu-unique !!! necessary to allow dlclose to unload the library
 
 LIBS=-lafcpu
@@ -13,17 +8,14 @@ CFLAGS=-fPIC -O2 -fvisibility=default -fno-gnu-unique
 INCLUDES=-I/opt/arrayfire/include
 
 CC=g++	$(COMPILER_OPTIONS)
-COMPILER_OPTIONS=-std=c++11 -g
-
-#CC=gcc	$(COMPILER_OPTIONS)
-#COMPILER_OPTIONS=-g
+COMPILER_OPTIONS=-std=c++11
 
 OBJS=  \
- dll.o
+ $(target).o
 
-%.o: %.c
+%.o: %.cpp
 	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS)
 
 $(target) : $(OBJS)
-	$(CC) -o lib$(target).so $(OBJS) $(LIBS)  $(LIB_PATHS) $(LDFLAGS)
+	$(CC) -o lib$(target)$(backend).so $(OBJS) -laf$(backend) $(LIB_PATHS) $(LDFLAGS)\
 

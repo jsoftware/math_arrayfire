@@ -1,15 +1,14 @@
 // shared library with arrayfire routines - for use with J-ArrayFire bindings
 //#include <stdio.h>
 
-#pragma warning (disable:4275)
 
 #include <arrayfire.h>
 #include <stdio.h>
-#include <cstdlib>
 using namespace af;
 
 #ifdef _WIN32
-//#include <windows.h>
+#pragma warning (disable:4275)
+#include <cstdlib>
 int WINAPI DllMain (HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved){return TRUE;}
 #else
 #define _stdcall
@@ -22,8 +21,6 @@ int WINAPI DllMain (HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved){return TR
 #else
 #define CDPROC
 #endif
-
-CDPROC int _stdcall test(){return 23;};
 
 // cdf'' can fail to unload - use datetime to check for use of latest build
 CDPROC int _stdcall xaf_datetime(char** qresult)
