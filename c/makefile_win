@@ -2,14 +2,10 @@ CFLAGS=  /EHsc /WX /W3 /O2 /GS  /D_CRT_SECURE_NO_WARNINGS /MT
 FLAGS= /DLL /NOLOGO /MACHINE:X64 /SUBSYSTEM:WINDOWS,5.02
 LIB= $(LIB);"c:\program files\arrayfire\v3\lib"
 
-#/D_USING_V110_SDK71_
-#/LIBPATH:"c:\program files\arrayfire\v3\lib\afcpu.lib"
-
 .SUFFIXES: .o
 
 OBJS=  $(target).o
-
-DEF=   dll.def
+DEF=   $(target).def
 
 !ifndef LD
 LD=link
@@ -18,11 +14,10 @@ LD=link
 .cpp.o:
 	$(CC) $(CFLAGS)  /I "c:\program files\arrayfire\v3\include" /Fo$@ /c $<
 
-
 TARGET= $(target)$(backend).dll
 
 $(TARGET) : $(OBJS)
-	$(LD) /DEF:$(DEF) $(FLAGS) /out:$@ $(OBJS) afcpu.lib
+	$(LD)  $(FLAGS) /DEF:$(DEF) /out:$@ $(OBJS) afcpu.lib
 
 all: $(TARGET)
 
