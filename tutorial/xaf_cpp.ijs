@@ -21,7 +21,7 @@ $ make target=xaf backend=cpu -B -f dllmakefile # -B forces build of lib$(target
 windows:
 > cd j903\addons\math\arrayfire\c
 > vcvars64.bat    - only do this once
-> build.bat
+> build.bat xaf cpu
 )
 
 3 : 0''
