@@ -7,7 +7,7 @@ LIB= $(LIB);"c:\program files\arrayfire\v3\lib"
 
 .SUFFIXES: .o
 
-OBJS=  dll.o
+OBJS=  $(target).o
 
 DEF=   dll.def
 
@@ -19,7 +19,7 @@ LD=link
 	$(CC) $(CFLAGS)  /I "c:\program files\arrayfire\v3\include" /Fo$@ /c $<
 
 
-TARGET= dll.dll
+TARGET= $(target)$(backend).dll
 
 $(TARGET) : $(OBJS)
 	$(LD) /DEF:$(DEF) $(FLAGS) /out:$@ $(OBJS) afcpu.lib

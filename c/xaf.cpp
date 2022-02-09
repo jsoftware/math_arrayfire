@@ -1,13 +1,14 @@
 // shared library with arrayfire routines - for use with J-ArrayFire bindings
-//#include <stdio.h>
 
+#ifdef _WIN32
+#pragma warning (disable:4275)
+#endif
 
 #include <arrayfire.h>
 #include <stdio.h>
 using namespace af;
 
 #ifdef _WIN32
-#pragma warning (disable:4275)
 #include <cstdlib>
 int WINAPI DllMain (HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved){return TRUE;}
 #else
