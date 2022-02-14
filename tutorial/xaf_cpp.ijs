@@ -1,30 +1,44 @@
 0 : 0
 you can add cpp routines to extend the arrayfire af_... routines
-in some cases this can be easier in c/cpp than with the J binding to af_... routines
-the cpp support for arrayfire has many nice fas that is the preferred arrayfire interface
+this might be easier than with J binding for af_... routines
+arrayfire cpp support is good and works well
 
-this makes it easy to take an exisiting arrayfire routine written in c/cpp
+it is easy to take an exisiting arrayfire routine written in cpp
 and plug it into your J workflow
 
-this tutorial shows a simple example of adding custom c/cpp routines
+this tutorial shows a simple example of adding custom cpp routines
 )
 
+create_work_folder=: 3 : 0
+mkdir_j_ '~temp/arrayfire/c'
+fsrc=. 1 dir JAFP,'c'
+fsnk=. (<'~temp/arrayfire/'),each(#JAFP)}.each fsrc
+(fread each fsrc)fwrite each fsnk
+i.0 0
+)
+
+3 : 0''
+if. 0=fexist'~temp/arrayfire/c' do. create_work_folder'' end.
+)
+
+jpath'~temp/arrayfire/c' NB. path to work folder
+
 0 : 0
-build a shared library with your routines for your backend
-for example, built a shared library from source xaf.cpp for cpu backend
-the linux shared library will be: libxafcpu.so
+build a shared library with arrayfire cpp routines
+for example, build a shared library from xaf.cpp for cpu backend
 
 linux:
-$ cd j903/addons/math/arrayfire/c
+$ cd path_to_workfolder
+$ chmod +x xaf_build.sh
 $ ./xaf_build.sh xaf cpu
 
-windows:
-> cd j903\addons\math\arrayfire\c
+windows: (assumes you have visual studio 2019 installed)
+> cd path_to_workfolder
 > vcvars64.bat    - only do this once
 > xaf_build.bat xaf cpu
 )
 
-3 : 0''
+xaf_init=: 3 : 0
 'backend not set by init'assert 0~:#backend_jaf_
 select. UNAME
 case. 'Win'    do. t=. 'xafq.dll'
@@ -33,12 +47,14 @@ case. 'Darwin' do. t=. 'libxafq.dylib'
 case.          do. 'host not supported'assert 0
 end.
 t=. t rplc 'q';backend_jaf_
-libxaf_jaf_=: JAFP,'c/',t,' '
+libxaf_jaf_=: jpath'~temp/arrayfire/c/',t,' '
 )
 
+xaf_init''
+
 xafx_jaf_=: 4 : 0
-r=. (libxaf,x)cd y
-if. 0~:0{::r do. 'af cd call error result' assert 0 [LASTERROR=: (":0{::r),' ',(x{.~x i.' '),' ',af_err_to_string 0{::r end.
+q__=: r=. (libxaf,x)cd y
+if. 0~:0{::r do. 'xaf cd call error result' assert 0 [LASTERROR=: (":0{::r),' ',(x{.~x i.' '),' ',af_err_to_string 0{::r end.
 r
 )
 
@@ -71,6 +87,9 @@ a1=: af_randu_jaf_ 4 4;f64_jaf_
 a2=: af_randu_jaf_ 4 4;f64_jaf_
 a3=: xaf_matmul_jaf_ a1,a2
 get_jaf_ a3
+
+a2i=: af_randu_jaf_ 4 4;s64_jaf_ NB. unsupported type in matmul
+a3=: xaf_matmul_jaf_ a1,a2i      NB. an error
 
 a4=: xaf_randu_jaf_ 4
 get_jaf_ a4
