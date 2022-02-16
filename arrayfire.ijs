@@ -358,6 +358,10 @@ ad=. 0{::(lib,'af_err_to_string x x')cd y
 memr ad,0,_1
 )
 
+af_get_last_error=: 3 : 0
+(lib,'af_get_last_error x * *')cd y
+)
+
 af_set_seed=: 3 : 0
 'af_set_seed x x'afx y
 )

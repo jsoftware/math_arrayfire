@@ -18,7 +18,7 @@ i.0 0
 )
 
 3 : 0''
-if. 0=fexist'~temp/arrayfire/c' do. create_work_folder'' end.
+if. 0=fexist'~temp/arrayfire/c/xaf.cpp' do. create_work_folder'' end.
 )
 
 jpath'~temp/arrayfire/c' NB. path to work folder

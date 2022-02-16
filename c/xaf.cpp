@@ -32,22 +32,23 @@ CDPROC int _stdcall xaf_datetime(char** qresult)
 return 0;
 }
 
-// matmul example - error if unsupported types
+// matmul example - error if: Input types are not the same
 CDPROC int _stdcall xaf_matmul(af_array* aresult,af_array a,af_array b)
 {
-printf("%s\n", "here we are");
+printf("%s\n","here we are");
 array a1= array(a);
 array b1= array(b);
 try
 {
  array a= matmul(a1,b1,AF_MAT_NONE,AF_MAT_NONE);
  af_retain_array(aresult,a.get());
+ return 0;
 }
-catch (af::exception& e)
+catch (...) //(af::exception& e) // exceptions do not work - cpp dll called from JE
 {
- printf("%s\n", e.what());
+ printf("%s\n","fubar");
+ return 1000;
 }
-return 0
 }
 
 // cpp array result - af_retain to inc ref count and .get() for the af_array*
