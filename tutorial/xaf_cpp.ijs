@@ -70,6 +70,10 @@ xaf_randu_jaf_=: 3 : 0
 afsadd 1{::'xaf_randu x * x'xafx aresult;y
 )
 
+xaf_randu_s64_jaf_=: 3 : 0
+afsadd 1{::'xaf_randu_s64 x * x'xafx aresult;y
+)
+
 xaf_gridxy_jaf_=: 3 : 0
 afsadd 1{::'xaf_gridxy x * x'xafx aresult;y
 )

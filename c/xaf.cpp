@@ -61,6 +61,45 @@ af_retain_array(aresult,a.get());
 return 0;
 }
 
+// cpp example
+CDPROC int _stdcall xaf_randu_s64(af_array* aresult,int n)
+{
+array a= randu(n,n,s64);
+af_retain_array(aresult,a.get());
+return 0;
+}
+
+array a666;
+
+CDPROC long long _stdcall testex(int n)
+{
+try
+{
+ if(n==123)return 123;
+ if(n==124)throw af::exception( "bad bad bad" );
+ array a1=randu(3,3,f32);
+ array a2=randu(3,3,f32);
+ array a2i=randu(3,3,s64);
+ if(n==125)
+{ 
+ array a666=matmul(a1,a2);
+ return (long long)(void*)&a666;
+}
+if(n==126)
+{
+ array a4=matmul(a1,a2i);
+ return n; 
+}
+ return 0;
+}
+catch (af::exception&e)
+{
+ printf("%i %s\n",e.err(),e.what());
+ return 666;
+}
+}
+
+
 // cpp example from arrayfire code - https://arrayfire.org/docs/matrixmanipulation.htm
 CDPROC af_array _stdcall xaf_gridxy(af_array* aresult,int n)
 {
