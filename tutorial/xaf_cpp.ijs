@@ -78,6 +78,10 @@ xaf_gridxy_jaf_=: 3 : 0
 afsadd 1{::'xaf_gridxy x * x'xafx aresult;y
 )
 
+xaf_test_jaf_=: 3 : 0
+'xaf_test x x'xafx y
+)
+
 0 : 0
 cdf'' will unload the lib so that you can test with a new build
 cdf'' can fail to unload for complicated reasons

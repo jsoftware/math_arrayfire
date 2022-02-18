@@ -32,22 +32,29 @@ CDPROC int _stdcall xaf_datetime(char** qresult)
 return 0;
 }
 
-// matmul example - error if: Input types are not the same
+array array_from_handle(af_array a)
+{
+af_array ax;
+af_retain_array(&ax,a); // up ref count
+return array(ax);
+}
+
+// error 205 if arrays are not same type
+// catch has a memory leak of 1 object and 1024 bytes
 CDPROC int _stdcall xaf_matmul(af_array* aresult,af_array a,af_array b)
 {
-printf("%s\n","here we are");
-array a1= array(a);
-array b1= array(b);
+array a1=array_from_handle(a);
+array b1=array_from_handle(b);
 try
 {
- array a= matmul(a1,b1,AF_MAT_NONE,AF_MAT_NONE);
- af_retain_array(aresult,a.get());
+ array r= matmul(a1,b1,AF_MAT_NONE,AF_MAT_NONE);
+ af_retain_array(aresult,r.get());
  return 0;
 }
-catch (...) //(af::exception& e) // exceptions do not work - cpp dll called from JE
+catch (af::exception& e) // (...) exceptions do not work - cpp dll called from JE
 {
- printf("%s\n","fubar");
- return 1000;
+ printf("%s\n",e.what());
+ return e.err();
 }
 }
 
@@ -71,7 +78,7 @@ return 0;
 
 array a666;
 
-CDPROC long long _stdcall testex(int n)
+CDPROC long long _stdcall xaf_test(int n)
 {
 try
 {

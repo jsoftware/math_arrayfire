@@ -1,14 +1,8 @@
 NB. J arrayfire cd bindings
 
-NB. a=. af_randu_jaf_ 4 4;2
-NB. b=. af_randu_jaf_ 4 4;2
-NB. t2=. afsadd_jaf_ 1{::'git/addons/math/arrayfire/c/libdll.so c_test x * x x' cd aresult_jaf_;(vaf_jaf_ a);vaf_jaf_ b
-
-exception=: 3 : 0
-load'git/addons/math/arrayfire/arrayfire.ijs'
-init_jaf_'cpu'
-tut_jaf_'xaf_cpp'
-spx 1 86
+0 : 0
+issues:
+af_matmul_ and xafmatmul with 205 error (different types) - memory leak of 1 object 1024 bytes
 )
 
 coclass'jaf'
@@ -309,6 +303,10 @@ af_info_string=: 3 : 0
 memr (1{::'af_info_string x * x'afx qresult;y),0,_1
 )
 
+af_retain_array=: 3 : 0
+'af_retain_array x * x'afx aresult;vaf y
+)
+
 NB. AF_MAT_NONE for elided args
 af_matmul=: 3 : 0
 if. 2=#y do. y=. y,0 0 end.
@@ -375,13 +373,6 @@ NB. memory management
 
 NB. our af_array ref counting is dumb and assumes count of 1
 release=: 3 : 0"0
-r=. 'af_release_array x x'afx vaf y
-AFS=: AFS-.y
-r
-)
-
-NB. our af_array ref counting is dumb and assumes count of 1
-release=: 3 : 0"0
 if. y e. AFS do.
  AFS=: AFS-.y
 'af_release_array x x'afx y
@@ -397,8 +388,9 @@ i.0 0
 freeall=: 3 : 0
 release AFS,AFSSP
 af_device_gc''
-assert 0=af_device_mem_info''
-i.0 0
+NB. assert 0=af_device_mem_info''
+NB. i.0 0
+af_device_mem_info''
 )
 
 af_eval=: 3 : 0
