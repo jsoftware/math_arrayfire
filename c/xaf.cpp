@@ -16,7 +16,7 @@ int WINAPI DllMain (HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved){return TR
 #endif
 
 #ifdef _WIN32
-#define CDPROC extern "C" 
+#define CDPROC extern "C" __declspec(dllexport)  
 #elif defined(__GNUC__)
 #define CDPROC extern "C" __attribute__ ((visibility ("default")))
 #else
@@ -89,7 +89,7 @@ try
  array a2i=randu(3,3,s64);
  if(n==125)
 { 
- array a666=matmul(a1,a2);
+ a666=matmul(a1,a2);
  return (long long)(void*)&a666;
 }
 if(n==126)

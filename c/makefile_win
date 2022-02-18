@@ -5,23 +5,22 @@ LIB= $(LIB);"c:\program files\arrayfire\v3\lib"
 .SUFFIXES: .o
 
 OBJS=  $(target).o
-DEF=   $(target).def
 
 !ifndef LD
 LD=link
 !endif
 
 .cpp.o:
-	$(CC) $(CFLAGS)  /I "c:\program files\arrayfire\v3\include" /Fo$@ /c $<
+ $(CC) $(CFLAGS)  /I "c:\program files\arrayfire\v3\include" /Fo$@ /c $<
 
 TARGET= $(target)$(backend).dll
 
 $(TARGET) : $(OBJS)
-	$(LD)  $(FLAGS) /DEF:$(DEF) /out:$@ $(OBJS) afcpu.lib
+ $(LD)  $(FLAGS) /out:$@ $(OBJS) afcpu.lib
 
 all: $(TARGET)
 
 clean:
-	erase /q *.lib *.exp *.res dll.o
+ erase /q *.lib *.exp *.res dll.o
 
 .PHONY: all clean
