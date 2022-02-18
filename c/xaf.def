@@ -3,3 +3,5 @@ EXPORTS
 	xaf_matmul
 	xaf_randu
 	xaf_gridxy
+    xaf_test
+
