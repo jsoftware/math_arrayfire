@@ -5,4 +5,4 @@ if [ ""$#"" -ne 2 ]; then
     echo "\$1.cpp built with backend \$2 - ... xaf cpu"
     exit 2
 fi
-make target=$1 backend=$2 -B -f dllmakefile
+make target=$1 backend=$2 -B -f makefile_unix
