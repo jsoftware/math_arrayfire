@@ -2,7 +2,7 @@ NB. J arrayfire cd bindings
 
 0 : 0
 issues:
-af_matmul_ and xafmatmul with 205 error (different types) - memory leak of 1 object 1024 bytes
+af_matmul_ and xafmatmul with 205 error (different types) - memory leak of 1 object of 1024 bytes
 )
 
 coclass'jaf'
@@ -56,6 +56,7 @@ if. _1=nc<'lib' do.
  AFSSP=: '' NB. valid sparse af array values
  lib=: 'invalidlib'
  backend=: ''
+ LASTMEMINFO=: 0 0 0 0
 end.
 
 if. _1=nc<'nointro' do. nointro=: 1[echo man'intro' end.
@@ -99,7 +100,8 @@ backend=: y
 i.0 0
 )
 
-NB. close current backend - allows new init 
+NB. close current backend - allows new init
+NB. convenient for casual testing but does not always work and may lead to crashes
 close=: 3 : 0
 assert ''-:y
 'freeall_jaf_'' must be run first'assert 0=#AFS,AFSSP
@@ -388,9 +390,12 @@ i.0 0
 freeall=: 3 : 0
 release AFS,AFSSP
 af_device_gc''
-NB. assert 0=af_device_mem_info''
-NB. i.0 0
-af_device_mem_info''
+t=. af_device_mem_info''
+if. -.t-:LASTMEMINFO do.
+ LASTMEMINFO=: t 
+ echo memleak
+end. 
+t
 )
 
 af_eval=: 3 : 0
@@ -506,6 +511,12 @@ ArrayFire not installed or not installed where init is looking
 cudamissing=: 0 : 0
 Nvidia cuda is not installed or not installed where init is looking
    man_jaf_'install cuda' NB. for more info
+)
+
+memleak=: 0 : 0
+freeall did not release all device memory
+this message reported only when it changes
+catch exception has leak of 1 object of 1024 bytes
 )
 
 preload=: 0 : 0
