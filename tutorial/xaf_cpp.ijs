@@ -27,8 +27,13 @@ for example, build a shared library from xaf.cpp for cpu backend
 
 linux:
 $ cd path_to_workfolder
-$ chmod +x build.sh
-$ ./build.sh xaf cpu
+$ chmod +x build_linux.sh
+$ ./build_linux.sh xaf cpu
+
+macos:
+% cd path_to_workfolder
+$ chmod +x build_macos.sh
+$ ./build_macos.sh xaf cpu
 
 windows: (assumes you have visual studio 2019 installed)
 > cd path_to_workfolder

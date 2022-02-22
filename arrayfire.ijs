@@ -23,12 +23,12 @@ i=. (4{.each }.bd) i. <'*** '
 
 3 : 0''
 select. UNAME
-case. 'Linux'  do. t=. 'libafxxx.so ' NB. depends on ldconfig
-case. 'Win'    do. t=. 'afxxx.dll '   NB. depends on AF_PATH and PATH env vars
-case. 'Darwin' do. t=. (fexist t-.'x'){::'libafxxx.dylib ';t=. '/opt/arrayfire/lib/libafxxx.dylib ' NB. full path
+case. 'Linux'  do. t=. 'libafxxx.so' NB. depends on ldconfig
+case. 'Win'    do. t=. 'afxxx.dll'   NB. depends on AF_PATH and PATH env vars
+case. 'Darwin' do. t=. (fexist t-.'x'){::'libafxxx.dylib';t=. '/opt/arrayfire/lib/libafxxx.dylib' NB. homebrew vs full path
 case.          do. 'host not supported'assert 0 
 end.
-libtemplate=: t
+libtemplate=: t,' '
 
 NB. ensure different (production vs development) packages are not both loaded
 n=. '/arrayfire.ijs'

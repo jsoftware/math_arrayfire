@@ -1,7 +1,6 @@
 # see arrayfire tutorial xaf_cpp for more info
 # -fno-gnu-unique !!! necessary to allow dlclose to unload the library
 
-LIBS=-lafcpu
 LDFLAGS=-shared -Wl,-soname,libdll.so
 LIB_PATHS=-L/opt/arrayfire/lib64
 CFLAGS=-fPIC -O2 -fvisibility=default -fno-gnu-unique

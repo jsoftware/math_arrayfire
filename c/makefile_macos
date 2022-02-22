@@ -1,0 +1,19 @@
+# see arrayfire tutorial xaf_cpp for more info
+
+LDFLAGS=-shared -dynamiclib
+LIB_PATHS=-L/opt/arrayfire/lib
+CFLAGS=-fPIC -O2 -fvisibility=default
+INCLUDES=-I/opt/arrayfire/include
+
+CC=g++	$(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11
+
+OBJS=  \
+ $(target).o
+
+%.o: %.cpp
+	$(CC) -c -o $@ $< $(INCLUDES) $(CFLAGS)
+
+$(target) : $(OBJS)
+	$(CC) -o lib$(target)$(backend).dylib $(OBJS) -laf$(backend) $(LIB_PATHS) $(LDFLAGS)\
+
