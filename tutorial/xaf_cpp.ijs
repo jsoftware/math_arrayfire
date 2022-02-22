@@ -60,8 +60,6 @@ if. 0~:0{::r do. 'xaf cd call error result' assert 0 [LASTERROR=: (":0{::r),' ',
 r
 )
 
-freeall_jaf_''
-
 xaf_datetime_jaf_=: 3 : 0
 memr 0 _1,~1{::'xaf_datetime x *'xafx <qresult
 )
@@ -72,10 +70,6 @@ afsadd 1{::'xaf_gridxy x * x'xafx aresult;y
 
 xaf_matmul_jaf_=: 3 : 0
 afsadd 1{::'xaf_matmul x * x x'xafx aresult;vaf each y
-)
-
-xaf_test_jaf_=: 3 : 0
-'xaf_test x x'xafx y
 )
 
 freeall_jaf_''
