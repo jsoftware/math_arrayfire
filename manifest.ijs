@@ -16,28 +16,31 @@ high performance computing for things like matrix multiply
 with cpu cores, Nvidia gpus, and opencl.
 )
 
-VERSION=: '2.1.10'
+VERSION=: '2.1.11'
 
 FILES=: 0 : 0
 manifest.ijs
 arrayfire.ijs       
 families.ijs        
 man.txt             
-c/makefile          
-c/sparse            
-c/base.c            
-c/sparse.c          
-c/base              
-util/proto.txt      
+c/build.bat     
+c/build_linux.sh
+c/build_macos.sh
+c/makefile_linux
+c/makefile_macos
+c/makefile_win  
+c/vcvars64.bat  
+c/xaf.cpp  util/proto.txt      
 util/famcnts.txt    
 util/util.ijs       
-tutorial/gridxy.ijs 
-tutorial/memory.ijs 
-tutorial/index.ijs  
 tutorial/basic.ijs  
-tutorial/sparse.ijs 
-tutorial/inverse.ijs
 tutorial/create.ijs 
+tutorial/display.ijs
+tutorial/gridxy.ijs 
+tutorial/index.ijs  
+tutorial/inverse.ijs
+tutorial/sparse.ijs 
+tutorial/xaf_cpp.ijs
 bench/matmul.ijs
 )
 
