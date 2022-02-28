@@ -50,6 +50,9 @@ else.
  if. t-:c{.f do. t=. }.c}.f end.
 end.
 JAFP_z_=: t
+
+NB. valid tuts in preferred order
+tuts=: ;:'basic create display index inverse memory qmp qgridxy sparse xaf_cpp'
  
 if. _1=nc<'lib' do.
  AFS=: ''     NB. valid normal af_array values
@@ -115,10 +118,7 @@ else.
  runtut=: lab_z_
 end.
 if. ''-:y do.
- d=. 1 dir JAFP,'tutorial'
- d=. (>:;d i: each '/')}.each d
- d=. d-.<'gridxy.ijs' NB. kludge to remove old tutorial
- ;(<'   tut_jaf_ '''),each(<'''',LF),~each _4}.each d
+ ;(<'   tut_jaf_ '''),each(<'''',LF),~each tuts
  return.
 end. 
 f=. JAFP,'tutorial/',(dltb y),'.ijs'

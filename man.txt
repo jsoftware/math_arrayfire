@@ -33,7 +33,7 @@ tutorial scripts also serve as tests
 
    load  JAFP,'/tutorial/basic.ijs' NB. run basic - check for errors
    loadd JAFP,'/tutorial/basic.ijs' NB. run basic with display
-   load  1 dir JAFP,'tutorial'      NB. run all 
+   loadd (<JAFP,'/tutorial/'),each tuts_jaf_,each<'.ijs' NB. run all 
 
 *** benchmarks
    study files in folder: JAFP,'bench'
