@@ -9,6 +9,7 @@ they would be useful tools if the problems can be sorted out
 ) 
  
 afad=. af_create_array_jaf_ jai=. 1.5+i.2 4
+get_jaf_ afad
 display_jaf_ afad 
 af_print_array_jaf_ afad
 t=.'no name',LF,'[2 4 1 1]',LF

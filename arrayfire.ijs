@@ -52,8 +52,8 @@ end.
 JAFP_z_=: t
  
 if. _1=nc<'lib' do.
- AFS=: ''   NB. valid normal af_array values
- AFSSP=: '' NB. valid sparse af array values
+ AFS=: ''     NB. valid normal af_array values
+ AFSHOLD=: '' NB. valid af_arrays that won't be released
  lib=: 'invalidlib'
  backend=: ''
  LASTMEMINFO=: 0 0 0 0
@@ -63,9 +63,7 @@ if. _1=nc<'nointro' do. nointro=: 1[echo man'intro' end.
 )
 
 require JAFP,'families.ijs' NB. define verbs for mop/dop/is/...
-
-NB. override af_is_sparse
-af_is_sparse=: 3 : 'AFSSP e.~ vafx y'
+require JAFP,'qcommon.ijs'   NB. jmp ...
 
 NB. y is 'cpu' or 'cuda' or 'opencl'
 NB. af_set_backend is implicit in the lib that is used
@@ -103,8 +101,7 @@ i.0 0
 NB. close current backend - allows new init
 NB. convenient for casual testing but does not always work and may lead to crashes
 close=: 3 : 0
-assert ''-:y
-'freeall_jaf_'' must be run first'assert 0=#AFS,AFSSP
+freeall''
 backend=: ''
 lib=: 'invalidlib'
 i.0 0
@@ -135,7 +132,9 @@ NB. (<''''),each '''',each~d
 NB. from test suite tsu.ijs - return expected error
 etx_z_=: 1 : 'u :: (<:@(13!:11)@i.@0: >@{ 9!:8@i.@0:)'
 
-rcc=: 3 : '($y)$,|:y' NB. convert J data between row and col major
+rcc=: $ $ [: , |: NB. row major order to col convert
+
+rcc=: 3 : '($y)$,|:y' NB. row major order to col convert
 
 NB. af constants from array.h etc
 'f32 c32 f64 c64 b8 s32 u32 u8 s64 u64 s16 u16 f16'=: i.13 NB. af array types
@@ -169,9 +168,6 @@ r
 NB. AFS tracks valid normal af_array values
 afsadd=: 3 : '''''$y[AFS=: AFS,y'
 
-NB. AFSSP tracks valid sparse af_array values
-afsspadd=: 3 : '''''$y[AFSSP=: AFSSP,y'
-
 NB. supported aftypes and corresponding J types
 aftypes=: s64, f64 
 jtypes =: 4  , 8
@@ -189,9 +185,7 @@ i{::jtypes
 )
 
 NB. validate cd args - needs work - validation avoids crashes!
-vaf=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'          NB. validate af_array
-vafsp=:  3 : 'y[''bad sparse af array''assert (''''-:$y)*.y e. AFSSP' NB. validate sparse af_array
-vafx=:   3 : 'y[''bad sparse or dense af array''assert (''''-:$y)*.y e. AFS,AFSSP' NB. validate sparse or dense af_array
+vaf=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'"0          NB. validate af_array(s)
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate rank
 vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'     NB. validate shape
 vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                  NB. validate af type
@@ -205,18 +199,20 @@ NB. out values are not in y and are set as
 NB.  aresult, iresult, lresult, or qresult as required
 NB. out values are returned
 
-NB. monad gets type from y - dyad x is aftype
+NB. (type [,rccflag]) f converts y to type and rccflag 0 avoids rcc
 af_create_array=: 3 : 0
 afsadd 1{::'af_create_array x * * x * x' afx aresult;(rcc y);(vrank #$y);(vshape $y);aftype_from_jtype y
 :
-select. x
-case. f64;s64 do. af_create_array y return.
+'type rccflag'=. 2{.x,1 NB. default 1 does rcc
+c=. (vrank #$y);vshape $y
+d=. ,rcc^:rccflag y
+select. type
+case. f64;s64 do.
 case. f32 do.
- p=. 1 fc ,rcc y
- a=. p;(vrank #$y);(vshape $y);f32
+ d=. 1 fc d
 case.         do. 'unsupported aftype' assert 0
 end.
-afsadd 1{::'af_create_array x * * x * x' afx aresult;a
+afsadd 1{::'af_create_array x * * x * x' afx aresult;d;c,<type
 )
 
 NB. constant is a double - coerced to type
@@ -288,7 +284,7 @@ DISPLAYLIMIT=:     2000 NB. _1 for all
 DISPLAYPRECISION=: 6
 
 display=: 3 : 0
-SPARSE_DISPLAY assert -.y e. AFSSP
+SPARSE_DISPLAY assert -.af_is_sparse y
 a=. af_array_to_string (vaf y);DISPLAYPRECISION;1 NB. transpose
 r=. memr a,0,_1
 af_free_host a NB. free the host memory
@@ -297,7 +293,7 @@ DISPLAYLIMIT{.r
 
 NB. af_print_array to console
 af_print_array=: 3 : 0
-SPARSE_DISPLAY assert -.y e. AFSSP
+SPARSE_DISPLAY assert -.af_is_sparse y
 i.0 0['af_print_array x x'afx vaf y
 )
 
@@ -312,7 +308,7 @@ af_retain_array=: 3 : 0
 NB. AF_MAT_NONE for elided args
 af_matmul=: 3 : 0
 if. 2=#y do. y=. y,0 0 end.
-vafx 0{y
+vaf 0{y
 vaf  1{y
 afsadd 1{::'af_matmul x * x x x x'afx aresult;<"0 y
 )
@@ -322,15 +318,15 @@ af_det=: 3 : 0
 )
 
 af_get_type=: 3 : 0
-''$1{::'af_get_type x *i x'afx iresult;vafx y
+''$1{::'af_get_type x *i x'afx iresult;vaf y
 )
 
 af_get_numdims=: 3 : 0
-''$1{::'af_get_numdims x *i x'afx iresult;vafx y
+''$1{::'af_get_numdims x *i x'afx iresult;vaf y
 )
 
 af_get_dims=: 3 : 0
-;1 2 3 4{'af_get_dims x * * * * x'afx lresult;lresult;lresult;iresult;vafx y
+;1 2 3 4{'af_get_dims x * * * * x'afx lresult;lresult;lresult;iresult;vaf y
 )
 
 NB. result;af_array
@@ -343,14 +339,6 @@ NB. af_array_to_string (char **output, const char *exp, const af_array arr, cons
 af_array_to_string=: 3 : 0
 vaf 0{::y
 1{::'af_array_to_string x * *c x x x'afx qresult;'no name';y
-)
-
-af_free_host=: 3 : 0
-'af_free_host x x'afx y
-)
-
-af_free_device_v2=: 3 : 0
-'af_free_device_v2 x x'afx y
 )
 
 af_err_to_string=: 3 : 0
@@ -372,31 +360,69 @@ af_get_seed=: 3 : 0
 
 NB. memory management
 
+NB. device garbage collection
+af_device_gc=: 3 : 0
+i.0 0['af_device_gc x'afx''
+)
+
+NB. bytes,buffers,lock_bytes,lock_buffers
+af_device_mem_info=: 3 : 0
+}.;'af_device_mem_info x * * * *'afx iresult;iresult;iresult;iresult
+)
 
 NB. our af_array ref counting is dumb and assumes count of 1
+NB. do not release if the af_array is held
 release=: 3 : 0"0
-if. y e. AFS do.
+y=. AFSHOLD-.~vaf y
+if. 1=#y do.
+ 'af_release_array x x'afx y
  AFS=: AFS-.y
-'af_release_array x x'afx y
-elseif. y e. AFSSP do.
- AFSSP=: AFSSP-.y
-'af_release_array x x'afx y
-elseif. do.
- vaf y
-end.
+end. 
 i.0 0
 )
 
-freeall=: 3 : 0
-release AFS,AFSSP
+NB. free device memory
+NB. free AFSHOLD , AFS , gc
+NB. free AFS arrays, gc, and report mem info
+free=: 3 : 0
+release AFS
 af_device_gc''
-t=. af_device_mem_info''
-if. -.t-:LASTMEMINFO do.
- LASTMEMINFO=: t 
- echo memleak
-end. 
-t
+af_device_mem_info''
 )
+
+NB. free AFS after AFSHOLD=: '', gc, report mem info
+freeall=: 3 : 0
+AFSHOLD=: ''
+free''
+)
+
+chkleak=: 3 : 0
+'first do: freeall_jaf_''''  'assert 0=#AFS
+t=. af_device_mem_info''
+if. t-:0 0 0 0 do. 'no memory leak' return. end.
+echo (":t),LF,memleak
+'unexpected af_device_mem_info result'assert (2{.t)-:2}.t
+'leak not explained by 1024 bytes per object from exception'assert ({.t)=1024*1{t
+)
+
+hold=: 3 : 0
+AFSHOLD=: ~.AFSHOLD,vaf y
+)
+
+letgo=: 3 : 0
+vaf y
+AFSHOLD=: AFSHOLD-.y
+)
+
+af_free_host=: 3 : 0
+'af_free_host x x'afx y
+)
+
+af_free_device_v2=: 3 : 0
+'af_free_device_v2 x x'afx y
+)
+
+NB. memory management end
 
 af_eval=: 3 : 0
 i.0 0['af_eval x x'afx vaf y
@@ -411,23 +437,19 @@ af_get_data_ref_count=: 3 : 0
 ''$1{::'af_get_data_ref_count x *i x'afx iresult;vaf y
 )
 
-af_device_gc=: 3 : 0
-i.0 0['af_device_gc x'afx''
-)
-
-NB. bytes,buffers,lock_bytes,lock_buffers
-af_device_mem_info=: 3 : 0
-}.;'af_device_mem_info x * * * *'afx iresult;iresult;iresult;iresult
-)
-
 af_tile=: 3 : 0
 vaf 0{::y
 afsadd 1{::'af_tile x * x x x x x'afx aresult;y
 )
 
 af_transpose=: 3 : 0
-vaf 0{::y
-afsadd 1{::'af_transpose x * x x'afx aresult;y
+vaf 0{y
+afsadd 1{::'af_transpose x * x x'afx aresult;<"0 y
+)
+
+af_transpose_inplace=: 3 : 0
+vaf 0{y
+i.0 0['af_transpose_inplace x x x'afx y
 )
 
 af_flat=: 3 : 0
@@ -464,7 +486,8 @@ AF_STORAGE_COO       =: 3
 
 NB. data;rows;cols;AF_STORAGE_...;af type;af numdims;af_dims
 getsparse=: 3 : 0
-a=. af_sparse_get_info vafsp y
+'must be sparse'assert af_is_sparse y
+a=. af_sparse_get_info vaf y
 r=. (get 0{a);(get 1{a);(get 2{a);({:a);(af_get_type y);(af_get_numdims y);af_get_dims y
 release"0 3{.a
 r
@@ -483,11 +506,12 @@ a=. d i}(rows*cols)$0
 
 af_create_sparse_array_from_dense=: 3 : 0
 vaf 0{::y
-afsspadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
+afsadd 1{::'af_create_sparse_array_from_dense x * x x'afx aresult;y NB. AF_STORAGE_CSR
 )
 
 af_sparse_get_info=: 3 : 0
-r=. ;1 2 3 4{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;vafsp y
+'must be sparse'assert af_is_sparse vaf y
+r=. ;1 2 3 4{'af_sparse_get_info x * * * *i x'afx aresult;aresult;aresult;iresult;y
 afsadd 3{.r
 r
 )
@@ -515,14 +539,10 @@ Nvidia cuda is not installed or not installed where init is looking
 
 memleak=: 0 : 0
 freeall did not release all device memory
-this message reported only when it changes
-catch exception has leak of 1 object of 1024 bytes
+exceptions (LASTERROR) - leak 1 object of 1024 bytes
 )
 
 preload=: 0 : 0
 LD_PRELOAD is required
    man_jaf_'preload' NB. more info and workaround
 )   
-
-
- 
