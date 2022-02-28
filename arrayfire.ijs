@@ -117,7 +117,7 @@ end.
 if. ''-:y do.
  d=. 1 dir JAFP,'tutorial'
  d=. (>:;d i: each '/')}.each d
- d=. d-.<'gridxy' NB. kludge to remove old tutorial
+ d=. d-.<'gridxy.ijs' NB. kludge to remove old tutorial
  ;(<'   tut_jaf_ '''),each(<'''',LF),~each _4}.each d
  return.
 end. 
