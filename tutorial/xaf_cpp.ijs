@@ -44,7 +44,7 @@ xaf_init=: 3 : 0
 'backend not set by init'assert 0~:#backend_jaf_
 select. UNAME
 case. 'Win'    do. t=. 'xafq.dll'
-case. 'Linux'  do. t=. 'libxafq.so'
+case. 'Linux';'FreeBSD';'OpenBSD' do. t=. 'libxafq.so'
 case. 'Darwin' do. t=. 'libxafq.dylib'
 case.          do. 'host not supported'assert 0
 end.

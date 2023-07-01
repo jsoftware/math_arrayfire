@@ -3,7 +3,7 @@ coclass'jaf'
 NB. get c header file names and contents
 getincs=: 3 : 0
 select. UNAME
-case. 'Linux' do.
+case. 'Linux';'FreeBSD';'OpenBSD' do.
  t=. '/opt/arrayfire/include' NB. path to af includes
 case. 'Win'   do.
  t=. jpath (getenv'AF_PATH'),'/include' NB. path to af includes
