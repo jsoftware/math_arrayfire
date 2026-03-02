@@ -87,7 +87,8 @@ end.
 
 if. (UNAME-:'Linux')*.y-:'cpu' do.
  try.
-  'libmkl_def.so foo x'cd'' NB. check if required LD_PRELOAD has been done
+  NB. more recent linux vs arrayfire versions do not require LD_PRELOAD 
+  NB. 'libmkl_def.so foo x'cd'' NB. check if required LD_PRELOAD has been done
  catch.
   if. 1 0-:cder'' do. 
    echo preload
