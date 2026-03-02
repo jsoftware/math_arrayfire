@@ -188,7 +188,8 @@ i{::jtypes
 )
 
 NB. validate cd args - needs work - validation avoids crashes!
-vaf=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'"0          NB. validate af_array(s)
+vafx=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'         NB. validate af_array(s)
+vaf=: vafx"0
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate rank
 vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'     NB. validate shape
 vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                  NB. validate af type
