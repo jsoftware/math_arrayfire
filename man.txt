@@ -111,22 +111,4 @@ Alex Shroyer, in late 2021, did some new work and wrote a paper:
 
 this addon started with a clean slate - it might be interesting 
  to see if it could be improved/replaced by the work of Pascal or Alex
- 
-*** preload
-some linux distributions have a mismatch with libraries required by arrayfire
-web search: MKL FATAL ERROR: Cannot load libmkl_avxavx2.so or libmkl_def.so
-
-export LD_PRELOAD to load required libs before starting J is a workaround
-
-* afrunjhs.sh - script to run JHS with preload
-#!/bin/bash
-export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
-j903/bin/jconsole ~addons/ide/jhs/config/jhs.cfg
-*
-
-* afrunjqt.sh - script to run Jqt with preload
-#!/bin/bash
-export LD_PRELOAD=/opt/arrayfire/lib64/libmkl_def.so:/opt/arrayfire/lib64/libmkl_avx2.so:/opt/arrayfire/lib64/libmkl_core.so:/opt/arrayfire/lib64/libmkl_intel_lp64.so:/opt/arrayfire/lib64/libmkl_intel_thread.so:/opt/arrayfire/lib64/libiomp5.so
-j903/bin/jqt
-*
 

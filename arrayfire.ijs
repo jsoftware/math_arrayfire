@@ -85,18 +85,6 @@ catch.
  ('load library failed: ',t)assert 0 [ echo m
 end.
 
-if. (UNAME-:'Linux')*.y-:'cpu' do.
- try.
-  NB. more recent linux vs arrayfire versions do not require LD_PRELOAD 
-  NB. 'libmkl_def.so foo x'cd'' NB. check if required LD_PRELOAD has been done
- catch.
-  if. 1 0-:cder'' do. 
-   echo preload
-   'required LD_PRELOAD missing'assert 0
-  end.
- end. 
-end.
-
 lib=: t
 backend=: y
 i.0 0
@@ -188,8 +176,11 @@ i{::jtypes
 )
 
 NB. validate cd args - needs work - validation avoids crashes!
-vafx=:    3 : 'y[''bad af array''assert (''''-:$y)*.y e. AFS'         NB. validate af_array(s)
-vaf=: vafx"0
+vaf=:    3 : 0
+if. 0~:#y do. 'bad af array' assert y e. AFS end. 
+y
+)
+
 vrank=:  3 : 'y[''bad rank''    assert (''''-:$y)*.(4=3!:0 y)*.5>y'   NB. validate rank
 vshape=: 3 : 'y[''bad shape''   assert (1=#$y)*.(4=3!:0 y)*.5>#y'     NB. validate shape
 vtype=:  3 : 'y[''bad type''    assert y e. aftypes'                  NB. validate af type
@@ -376,11 +367,12 @@ af_device_mem_info=: 3 : 0
 
 NB. our af_array ref counting is dumb and assumes count of 1
 NB. do not release if the af_array is held
-release=: 3 : 0"0
-y=. AFSHOLD-.~vaf y
-if. 1=#y do.
- 'af_release_array x x'afx y
- AFS=: AFS-.y
+release=: 3 : 0
+vaf y
+y=. y-.AFSHOLD
+for_a. y do.
+ 'af_release_array x x'afx a
+ AFS=: AFS-.a
 end. 
 i.0 0
 )
@@ -493,7 +485,7 @@ getsparse=: 3 : 0
 'must be sparse'assert af_is_sparse y
 a=. af_sparse_get_info vaf y
 r=. (get 0{a);(get 1{a);(get 2{a);({:a);(af_get_type y);(af_get_numdims y);af_get_dims y
-release"0 3{.a
+release 3{.a
 r
 )
 
@@ -546,7 +538,3 @@ freeall did not release all device memory
 exceptions (LASTERROR) - leak 1 object of 1024 bytes
 )
 
-preload=: 0 : 0
-LD_PRELOAD is required
-   man_jaf_'preload' NB. more info and workaround
-)   
