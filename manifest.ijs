@@ -16,7 +16,7 @@ high performance computing for things like matrix multiply
 with cpu cores, Nvidia gpus, and opencl.
 )
 
-VERSION=: '2.1.20'
+VERSION=: '2.1.21'
 
 FILES=: 0 : 0
 arrayfire.ijs       
